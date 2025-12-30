@@ -1,0 +1,160 @@
+{
+  "activities": [
+    {
+      "id": "act_root",
+      "name": "Order Processing",
+      "parentId": null,
+      "isMaster": true,
+      "inputs": [],
+      "outputs": []
+    },
+
+    {
+      "id": "act_receive",
+      "name": "Receive Order",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Received" }
+      ]
+    },
+
+    {
+      "id": "act_credit_approve",
+      "name": "Approve Credit",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "Received" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Credit Approved" }
+      ]
+    },
+
+    {
+      "id": "act_credit_reject",
+      "name": "Reject Credit",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "Received" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Credit Rejected" }
+      ]
+    },
+
+    {
+      "id": "act_inventory_ok",
+      "name": "Confirm Inventory",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "Credit Approved" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "In Stock" }
+      ]
+    },
+
+    {
+      "id": "act_inventory_fail",
+      "name": "Inventory Shortage",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "Credit Approved" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Out of Stock" }
+      ]
+    },
+
+    {
+      "id": "act_fulfill",
+      "name": "Fulfill Order",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "In Stock" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Fulfilled" }
+      ]
+    },
+
+    {
+      "id": "act_invoice",
+      "name": "Send Invoice",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "Fulfilled" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Invoiced" }
+      ]
+    },
+
+    {
+      "id": "act_payment",
+      "name": "Receive Payment",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "Invoiced" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Paid" }
+      ]
+    },
+
+    {
+      "id": "act_close",
+      "name": "Close Order",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "Paid" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Closed" }
+      ]
+    },
+
+    {
+      "id": "act_cancel",
+      "name": "Cancel Order",
+      "parentId": "act_root",
+      "isMaster": false,
+      "inputs": [
+        { "artifactId": "art_order", "state": "Credit Rejected" },
+        { "artifactId": "art_order", "state": "Out of Stock" }
+      ],
+      "outputs": [
+        { "artifactId": "art_order", "state": "Cancelled" }
+      ]
+    }
+  ],
+
+  "artifacts": [
+    {
+      "id": "art_order",
+      "name": "Customer Order",
+      "states": [
+        "Received",
+        "Credit Approved",
+        "Credit Rejected",
+        "In Stock",
+        "Out of Stock",
+        "Fulfilled",
+        "Invoiced",
+        "Paid",
+        "Closed",
+        "Cancelled"
+      ]
+    }
+  ]
+}

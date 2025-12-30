@@ -1,0 +1,488 @@
+{
+  "activities": [
+    {
+      "id": "act_master",
+      "name": "Master Process",
+      "parentId": null,
+      "isMaster": true,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "act_req_phase",
+      "name": "Requirements Phase",
+      "parentId": "act_master",
+      "isMaster": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "act_req_dev",
+      "name": "Develop Requirements",
+      "parentId": "act_req_phase",
+      "isMaster": false,
+      "inputs": [],
+      "outputs": [
+        {
+          "artifactId": "art_sysreq",
+          "state": "Draft"
+        }
+      ]
+    },
+    {
+      "id": "act_req_review",
+      "name": "Review Requirements",
+      "parentId": "act_req_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_sysreq",
+          "state": "Draft"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_sysreq",
+          "state": "Approved"
+        }
+      ]
+    },
+    {
+      "id": "act_req_baseline",
+      "name": "Baseline Requirements",
+      "parentId": "act_req_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_sysreq",
+          "state": "Approved"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_sysreq",
+          "state": "Baselined"
+        }
+      ]
+    },
+    {
+      "id": "act_design_phase",
+      "name": "Design Phase",
+      "parentId": "act_master",
+      "isMaster": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "act_arch_dev",
+      "name": "Develop Architecture",
+      "parentId": "act_design_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_sysreq",
+          "state": "Baselined"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_arch",
+          "state": "Draft"
+        }
+      ]
+    },
+    {
+      "id": "act_arch_review",
+      "name": "Review Architecture",
+      "parentId": "act_design_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_arch",
+          "state": "Draft"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_arch",
+          "state": "Approved"
+        }
+      ]
+    },
+    {
+      "id": "act_arch_baseline",
+      "name": "Baseline Architecture",
+      "parentId": "act_design_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_arch",
+          "state": "Approved"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_arch",
+          "state": "Baselined"
+        }
+      ]
+    },
+    {
+      "id": "act_impl_phase",
+      "name": "Implementation Phase",
+      "parentId": "act_master",
+      "isMaster": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "act_impl",
+      "name": "Implement Code",
+      "parentId": "act_impl_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_arch",
+          "state": "Baselined"
+        },
+        {
+          "artifactId": "art_cr",
+          "state": "Analyzed"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_code",
+          "state": "Implemented"
+        },
+        {
+          "artifactId": "art_testplan",
+          "state": "Draft"
+        },
+        {
+          "artifactId": "art_userdoc",
+          "state": "Draft"
+        },
+        {
+          "artifactId": "art_cr",
+          "state": "Implemented"
+        }
+      ]
+    },
+    {
+      "id": "act_code_review",
+      "name": "Code Review",
+      "parentId": "act_impl_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_code",
+          "state": "Implemented"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_code",
+          "state": "Approved"
+        }
+      ]
+    },
+    {
+      "id": "act_ivv_phase",
+      "name": "Integration & Verification Phase",
+      "parentId": "act_master",
+      "isMaster": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "act_testplan_review",
+      "name": "Review Test Plan",
+      "parentId": "act_ivv_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_testplan",
+          "state": "Draft"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_testplan",
+          "state": "Approved"
+        }
+      ]
+    },
+    {
+      "id": "act_integration",
+      "name": "Integration",
+      "parentId": "act_ivv_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_code",
+          "state": "Approved"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_build",
+          "state": "Built"
+        },
+        {
+          "artifactId": "art_code",
+          "state": "Integrated"
+        },
+        {
+          "artifactId": "art_userdoc",
+          "state": "Approved"
+        }
+      ]
+    },
+    {
+      "id": "act_verification",
+      "name": "System Verification",
+      "parentId": "act_ivv_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_build",
+          "state": "Built"
+        },
+        {
+          "artifactId": "art_testplan",
+          "state": "Approved"
+        },
+        {
+          "artifactId": "art_cr",
+          "state": "Implemented"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_testreport",
+          "state": "Approved"
+        },
+        {
+          "artifactId": "art_build",
+          "state": "Tested"
+        },
+        {
+          "artifactId": "art_cr",
+          "state": "Verified"
+        }
+      ]
+    },
+    {
+      "id": "act_release_phase",
+      "name": "Release Phase",
+      "parentId": "act_master",
+      "isMaster": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "act_release",
+      "name": "Release Build",
+      "parentId": "act_release_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_build",
+          "state": "Tested"
+        },
+        {
+          "artifactId": "art_testreport",
+          "state": "Approved"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_build",
+          "state": "Released"
+        },
+        {
+          "artifactId": "art_release",
+          "state": "Candidate"
+        }
+      ]
+    },
+    {
+      "id": "act_release_approval",
+      "name": "Release Approval",
+      "parentId": "act_release_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_release",
+          "state": "Candidate"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_release",
+          "state": "Approved"
+        }
+      ]
+    },
+    {
+      "id": "act_deploy",
+      "name": "Deployment",
+      "parentId": "act_release_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_release",
+          "state": "Approved"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_release",
+          "state": "Deployed"
+        },
+        {
+          "artifactId": "art_userdoc",
+          "state": "Published"
+        }
+      ]
+    },
+    {
+      "id": "act_ops_phase",
+      "name": "Operations Phase",
+      "parentId": "act_master",
+      "isMaster": false,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "act_change_mgmt",
+      "name": "Change Management",
+      "parentId": "act_ops_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_cr",
+          "state": "Verified"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_cr",
+          "state": "Closed"
+        }
+      ]
+    },
+    {
+      "id": "act_maintenance",
+      "name": "Maintenance",
+      "parentId": "act_ops_phase",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art_release",
+          "state": "Deployed"
+        },
+        {
+          "artifactId": "art_cr",
+          "state": "Open"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art_cr",
+          "state": "Analyzed"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "art_sysreq",
+      "name": "System Requirements",
+      "states": [
+        "Draft",
+        "Approved",
+        "Baselined"
+      ]
+    },
+    {
+      "id": "art_arch",
+      "name": "System Architecture",
+      "states": [
+        "Draft",
+        "Approved",
+        "Baselined"
+      ]
+    },
+    {
+      "id": "art_code",
+      "name": "Source Code",
+      "states": [
+        "Implemented",
+        "Approved",
+        "Integrated"
+      ]
+    },
+    {
+      "id": "art_testplan",
+      "name": "Test Plan",
+      "states": [
+        "Draft",
+        "Approved",
+        "Executed"
+      ]
+    },
+    {
+      "id": "art_build",
+      "name": "Build",
+      "states": [
+        "Built",
+        "Tested",
+        "Released"
+      ]
+    },
+    {
+      "id": "art_testreport",
+      "name": "Test Report",
+      "states": [
+        "Draft",
+        "Approved"
+      ]
+    },
+    {
+      "id": "art_release",
+      "name": "Release Package",
+      "states": [
+        "Candidate",
+        "Approved",
+        "Deployed"
+      ]
+    },
+    {
+      "id": "art_userdoc",
+      "name": "User Documentation",
+      "states": [
+        "Draft",
+        "Approved",
+        "Published"
+      ]
+    },
+    {
+      "id": "art_cr",
+      "name": "Change Request",
+      "states": [
+        "Open",
+        "Analyzed",
+        "Implemented",
+        "Verified",
+        "Closed"
+      ]
+    }
+  ],
+  "offsets": {},
+  "achieved": {},
+  "routes": {},
+  "lcLayouts": {},
+  "lcRoutes": {}
+}
