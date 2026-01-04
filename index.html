@@ -6,43 +6,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PROVE-Pro(totype)</title>
   <style>
-  :root { --bg:#0f172a; --panel:#0b1220; --muted:#9ca3af; --text:#e5e7eb; --accent:#60a5fa; --accent2:#34d399; --border:#374151; --danger:#f87171; --warn:#fbbf24; }
+  :root { --bg:#0f172a; --panel:#0b1220; --muted:#9ca3af; --text:#e5e7eb; --accent:#60a5fa; --accent2:#34d399; --border:#374151; --danger:#f87171; --warn:#fbbf24; --handle:#f59e0b; }
   *{ box-sizing:border-box; }
   body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,Liberation Sans,sans-serif; background:#0f172a; color:#e5e7eb; }
   header{ padding:1rem 1.5rem; border-bottom:1px solid var(--border); background:#091019; }
   header h1{ margin:0; font-size:1.4rem; }
-  .subtitle{ margin:.25rem 0 0; color:var(--muted); }
+  .subtitle{ margin:.25rem 0 0; color:#9ca3af; }
   #toolbar{ display:flex; gap:1rem; padding:.75rem 1rem; border-bottom:1px solid var(--border); background:#091019; flex-wrap:wrap; }
   #toolbar .group{ display:flex; gap:.5rem; align-items:center; }
-  button{ background:#1f2937; color:var(--text); border:1px solid var(--border); padding:.4rem .6rem; border-radius:.4rem; cursor:pointer; }
-  button:hover{ border-color:var(--accent); }
+  button{ background:#1f2937; color:#e5e7eb; border:1px solid var(--border); padding:.4rem .6rem; border-radius:.4rem; cursor:pointer; }
+  button:hover{ border-color:#60a5fa; }
   input[type=checkbox]{ transform: scale(1.2); }
+  select, textarea { background:#0b1220; border:1px solid var(--border); color:#e5e7eb; border-radius:.35rem; padding:.35rem; }
   .btn-danger{ border-color:#b91c1c; color:#fecaca; }
-  #workspace{ display:grid; grid-template-columns:360px 1fr 420px; height:calc(100vh - 160px); }
-  #leftPane,#rightPane{ border-right:1px solid var(--border); padding:.75rem; background:var(--panel); overflow:auto; }
+  #workspace{ display:grid; grid-template-columns:360px 1fr 520px; height:calc(100vh - 210px); }
+  #leftPane,#rightPane{ border-right:1px solid var(--border); padding:.75rem; background:#0b1220; overflow:auto; }
   #rightPane{ border-left:1px solid var(--border); border-right:none; }
   #canvasPane{ position:relative; }
   #svg{ width:100%; height:100%; background:#0a0f1a; cursor:grab; }
-  h2{ font-size:1rem; margin:.25rem 0 .5rem; color:var(--accent); }
+  h2{ font-size:1rem; margin:.25rem 0 .5rem; color:#60a5fa; }
   .node{ padding:.25rem .5rem; border:1px solid var(--border); border-radius:.4rem; margin-bottom:.25rem; }
-  .meta{ color:var(--muted); font-size:.85rem; }
+  .meta{ color:#9ca3af; font-size:.85rem; }
   .panel{ padding:.5rem; border:1px solid var(--border); border-radius:.5rem; margin-bottom:.5rem; background:#0b1220; }
-  .kv{ display:grid; grid-template-columns: 140px 1fr; gap:.35rem .5rem; font-size:.9rem; }
   .list{ display:flex; flex-direction:column; gap:.25rem; }
   .row{ display:flex; align-items:center; justify-content:space-between; gap:.5rem; border:1px solid var(--border); border-radius:.35rem; padding:.3rem .45rem; }
   .row-actions{ display:flex; gap:.35rem; }
-  .note{ color:#9ca3af; font-size:.85rem; margin-top:.25rem; }
-  .badge{ display:inline-block; padding:.1rem .35rem; border-radius:.35rem; font-size:.75rem; }
-  .badge-green{ background:#065f46; color:#d1fae5; }
-  .badge-gray{ background:#1f2937; color:#d1d5db; }
-  .legend{ display:flex; gap:.75rem; align-items:center; font-size:.85rem; color:var(--muted); }
-  .chip{ display:inline-block; padding:.1rem .35rem; border-radius:.35rem; font-size:.75rem; border:1px solid var(--border); }
+  .small{ font-size:.85rem; color:#9ca3af; }
+  .handle{ fill:#0b1220; stroke:var(--handle); stroke-width:2; cursor:move; }
+  .edge-selected{ stroke-dasharray:4 3; }
+  pre{ white-space:pre-wrap; }
   </style>
 </head>
 <body>
   <header>
     <h1>PROVE-Pro(totype)</h1>
-    <p class="subtitle">Adds artifact lifecycle (statechart) view + Achieved/Not Achieved status mode; grouped state arrows; forward rule for parents; strict cancel; add artifact inside Link IO; drag-to-reparent preserved.</p>
+    <p class="subtitle">Arrow aggregation: single connector per (source,destination,artifact,route) listing all states • Aggregated external inputs/goal outputs • Keeps v0.7.5 startup wiring, cycle guard, sibling connectors, lifecycle, existing-state picker, report & connector editing.</p>
   </header>
 
   <section id="toolbar">
@@ -59,16 +57,13 @@
       <button id="btnLinkIn">Link Input</button>
       <button id="btnLinkOut">Link Output</button>
       <button id="btnGating">Insert Gating</button>
+      <button id="btnLifecycle">Artifact Lifecycle</button>
     </div>
     <div class="group">
       <button id="btnCheck">Check Consistency</button>
-      <button id="btnLifecycle">Artifact Lifecycle</button>
       <label style="display:flex;gap:.35rem;align-items:center"><input type="checkbox" id="statusMode"/> <span>Status Mode</span></label>
-    </div>
-    <div class="group legend">
-      <span class="chip" style="background:#065f46;color:#d1fae5">Achieved</span>
-      <span class="chip" style="background:#1f2937;color:#d1d5db">Not Achieved</span>
-      <span class="chip" style="background:#fbbf24;color:#111827">Mixed</span>
+      <label style="display:flex;gap:.35rem;align-items:center"><input type="checkbox" id="editConnectors"/> <span>Edit Connectors</span></label>
+      <button id="btnResetRoutes" title="Clear all manual connector routes">Reset Connector Layouts</button>
     </div>
   </section>
 
@@ -100,28 +95,52 @@
         <div id="props"></div>
       </div>
       <div class="panel">
-        <h2>Status & Lifecycle</h2>
-        <div id="status"></div>
+        <h2>Consistency Report</h2>
+        <div id="reportCtrls" class="row">
+          <div>
+            <label>Perspective</label>
+            <select id="reportMode">
+              <option value="flat">Flat list</option>
+              <option value="byProcess">Group by process</option>
+              <option value="byRule">Group by rule</option>
+            </select>
+          </div>
+          <div class="row-actions"><button id="btnRunReport">Run</button></div>
+        </div>
+        <div id="reportOut" style="max-height:280px;overflow:auto"></div>
       </div>
-    </aside>
+      <div class="panel">
+        <h2>Selected Connector</h2>
+        <div id="edgeProps" class="small">Select a connector while "Edit Connectors" is ON to edit bendpoints.</div>
+      </div>
+          <div class="panel">
+        <h2>Status & Lifecycle</h2>
+        <div class="row" style="align-items:flex-end">
+          <div style="flex:1">
+            <label>Artifact</label>
+            <select id="statusArtifact"></select>
+          </div>
+          <div class="row-actions">
+            <button id="btnOpenLifecycle">Open Lifecycle</button>
+            <button id="btnClearAch">Clear Achieved</button>
+          </div>
+        </div>
+        <div id="statusStates" class="small" style="margin-top:.5rem"></div>
+      </div>
+</aside>
   </section>
 
-  <dialog id="dlg">
-    <form id="dlgForm" method="dialog">
-      <h3 id="dlgTitle">Dialog</h3>
-      <div id="dlgBody"></div>
-      <menu>
-        <button id="dlgCancel" type="button" value="cancel">Cancel</button>
-        <button id="dlgOk" type="submit" value="ok">OK</button>
-      </menu>
-    </form>
-  </dialog>
-
+  <!-- Lifecycle dialog -->
   <dialog id="lcDlg">
     <form method="dialog">
       <h3 id="lcTitle">Artifact Lifecycle</h3>
       <div id="lcBody" style="min-width:760px;min-height:460px">
         <svg id="lcSvg" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:380px;background:#0a0f1a">
+          <defs>
+            <marker id="lcArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#e5e7eb" />
+            </marker>
+          </defs>
           <g id="lcLayer"></g>
         </svg>
         <div style="margin-top:.5rem;display:flex;gap:.5rem;justify-content:flex-end">
@@ -134,6 +153,17 @@
     </form>
   </dialog>
 
+  <dialog id="dlg">
+    <form id="dlgForm" method="dialog">
+      <h3 id="dlgTitle">Dialog</h3>
+      <div id="dlgBody"></div>
+      <menu>
+        <button id="dlgCancel" type="button" value="cancel">Cancel</button>
+        <button id="dlgOk" type="submit" value="ok">OK</button>
+      </menu>
+    </form>
+  </dialog>
+
   <input type="file" id="fileInput" accept="application/json" style="display:none" />
 
   <footer>
@@ -141,183 +171,388 @@
   </footer>
 
   <script>
-  // ==== State ====
-  const state = {
-    activities: [],
-    artifacts: [],
-    selectedId: null,
-    offsets: {},
-    achieved: {}, // artifactId -> Set(states)
-    zoom: 1.0,
-    pan: {x:0,y:0}
-  };
-  const idGen = (p)=>{ let n=0; return ()=> `${p}${++n}`; };
-  const nextActId = idGen('act');
-  const nextArtId = idGen('art');
+  // ===== State =====
+  const state = { activities:[], artifacts:[], selectedId:null, offsets:{}, achieved:{}, zoom:1, pan:{x:0,y:0}, routes:{}, selectedEdge:null, lcLayouts:{}, lcRoutes:{} };
+  const idGen=(p)=>{ let n=0; return ()=> `${p}${++n}`; };
+  const nextActId=idGen('act'); const nextArtId=idGen('art');
+  function addActivity(name,parentId=null){ let id=nextActId(); while(state.activities.some(x=>x.id===id)) id=nextActId(); const a={id,name:name.trim()||'Activity',parentId,isMaster:false,inputs:[],outputs:[]}; state.activities.push(a); if(!state.offsets[id]) state.offsets[id]={dx:0,dy:0}; return a; }
+  function addArtifact(name){ let id=nextArtId(); while(state.artifacts.some(x=>x.id===id)) id=nextArtId(); const a={id,name:name.trim()||'Artifact',states:new Set()}; state.artifacts.push(a); return a; }
+  const findActivity=(id)=> state.activities.find(a=>a&&a.id===id);
+  const findArtifact=(id)=> state.artifacts.find(a=>a&&a.id===id);
+  const isAchieved=(artId,st)=> !!(state.achieved[artId] && state.achieved[artId].has(st));
+  function markAchieved(artId,st){ if(!state.achieved[artId]) state.achieved[artId]=new Set(); state.achieved[artId].add(st); }
+  function unmarkAchieved(artId,st){ if(state.achieved[artId]){ state.achieved[artId].delete(st); if(state.achieved[artId].size===0) delete state.achieved[artId]; } }
 
-  function addActivity(name, parentId=null){ const id=nextActId(); const act={id,name:name.trim()||'Activity',parentId,isMaster:false,inputs:[],outputs:[]}; state.activities.push(act); if(!state.offsets[id]) state.offsets[id] = {dx:0,dy:0}; return act; }
-  function addArtifact(name){ const id=nextArtId(); const art={id,name:name.trim()||'Artifact',states:new Set()}; state.artifacts.push(art); return art; }
-  function findActivity(id){ return state.activities.find(a=>a && a.id===id); }
-  function findArtifact(id){ return state.artifacts.find(a=>a && a.id===id); }
-  function getArtifactByName(name){ return state.artifacts.find(a=>a.name===name); }
+  // ===== Dialog helper =====
+  function openDialog(title,bodyHtml,onOk){ const dlg=document.getElementById('dlg'); const form=document.getElementById('dlgForm'); document.getElementById('dlgTitle').textContent=title; document.getElementById('dlgBody').innerHTML=bodyHtml; const submitHandler=(e)=>{ e.preventDefault(); if(e.submitter && e.submitter.id==='dlgOk'){ dlg.close('ok'); if(onOk) onOk(); } cleanup(); }; const cancelBtn=document.getElementById('dlgCancel'); const cancelHandler=()=>{ dlg.close('cancel'); cleanup(); }; const closeHandler=()=>{ cleanup(); }; function cleanup(){ form.removeEventListener('submit', submitHandler); cancelBtn.removeEventListener('click', cancelHandler); dlg.removeEventListener('close', closeHandler); } form.addEventListener('submit', submitHandler); cancelBtn.addEventListener('click', cancelHandler); dlg.addEventListener('close', closeHandler); dlg.showModal(); }
 
-  // ==== Dialog helper (Enter-to-submit; strict cancel) ====
-  function openDialog(title,bodyHtml,onOk){ const dlg=document.getElementById('dlg'); const form=document.getElementById('dlgForm'); document.getElementById('dlgTitle').textContent=title; document.getElementById('dlgBody').innerHTML=bodyHtml; const submitHandler=(e)=>{ e.preventDefault(); if(e.submitter && e.submitter.id==='dlgOk'){ dlg.close('ok'); if(onOk) onOk(); } cleanup(); }; const cancelBtn=document.getElementById('dlgCancel'); const cancelHandler=()=>{ dlg.close('cancel'); cleanup(); }; const closeHandler=()=>{ cleanup(); };
-    function cleanup(){ form.removeEventListener('submit', submitHandler); cancelBtn.removeEventListener('click', cancelHandler); dlg.removeEventListener('close', closeHandler); }
-    form.addEventListener('submit', submitHandler); cancelBtn.addEventListener('click', cancelHandler); dlg.addEventListener('close', closeHandler);
-    dlg.showModal(); }
-
-  // ==== Consistency ====
-  function hasChildren(activityId){ return state.activities.some(x=> x.parentId===activityId); }
-  function siblingsOf(activity){ return state.activities.filter(x=> x.parentId===activity.parentId && x.id!==activity.id); }
-
-  function checkConsistency(){ const issues=[];
-    // Missing inputs/outputs — always report
-    state.activities.forEach(a=>{ if(a.inputs.length===0){ issues.push(`[Inputs] ${a.name} has no identified inputs.`); } if(a.outputs.length===0){ issues.push(`[Outputs] ${a.name} has no identified outputs.`); } });
-    // Forward: only for parents with children
-    state.activities.forEach(parent=>{ if(hasChildren(parent.id)){ parent.outputs.forEach(out=>{ const hasChildProducer = state.activities.some(c=> c.parentId===parent.id && c.outputs.some(o=> o.artifactId===out.artifactId && o.state===out.state)); if(!hasChildProducer){ const art=findArtifact(out.artifactId); issues.push(`[Forward] ${parent.name} declares output ${art.name}::${out.state} without a child producer.`); } }); } });
-    // External inputs rule
-    state.activities.forEach(child=>{ const sibs = siblingsOf(child); child.inputs.forEach(i=>{ const producedBySibling = sibs.some(s=> s.outputs.some(o=> o.artifactId===i.artifactId && o.state===i.state)); if(!producedBySibling){ const parent = child.parentId? findActivity(child.parentId) : null; if(parent){ const aligned = parent.inputs.some(pi=> pi.artifactId===i.artifactId && pi.state===i.state); if(!aligned){ const art=findArtifact(i.artifactId); issues.push(`[External-IN] ${child.name} requires ${art.name}::${i.state} which is neither produced by a sibling nor listed as input of parent ${parent.name}.`); } } } }); });
-    return issues; }
-
-  // ==== Status helper ====
-  function markAchieved(artifactId,stateVal){ if(!state.achieved[artifactId]) state.achieved[artifactId] = new Set(); state.achieved[artifactId].add(stateVal); }
-  function unmarkAchieved(artifactId,stateVal){ if(state.achieved[artifactId]){ state.achieved[artifactId].delete(stateVal); if(state.achieved[artifactId].size===0) delete state.achieved[artifactId]; } }
-  function isAchieved(artifactId,stateVal){ return state.achieved[artifactId] && state.achieved[artifactId].has(stateVal); }
-  function inferAchievedFromOutputs(){ state.activities.forEach(a=> a.outputs.forEach(o=> markAchieved(o.artifactId, o.state))); }
-
-  // ==== IO helpers ====
-  function editIO(activityId,kind,index,newState){ const a=findActivity(activityId); if(!a) return; const arr=kind==='in'?a.inputs:a.outputs; if(arr[index]){ arr[index].state=newState; const art=findArtifact(arr[index].artifactId); if(art) art.states.add(newState); render(); } }
-  function deleteIO(activityId,kind,index){ const a=findActivity(activityId); if(!a) return; if(kind==='in') a.inputs.splice(index,1); else a.outputs.splice(index,1); render(); }
-
-  // ==== UI wrappers ====
-  function uiRenameArtifact(id){ const a=findArtifact(id); if(!a) return; openDialog('Rename Artifact', `<label>New name</label><input id=\"name\" value=\"${a.name}\"/>`, ()=>{ const n=(document.getElementById('name').value||a.name).trim(); a.name=n; render(); }); }
-  function uiDeleteArtifact(id){ openDialog('Delete Artifact', `<p>Delete this artifact and remove all references from activities?</p>`, ()=>{ state.activities.forEach(act=>{ act.inputs=act.inputs.filter(i=>i.artifactId!==id); act.outputs=act.outputs.filter(o=>o.artifactId!==id); }); state.artifacts=state.artifacts.filter(a=>a.id!==id); delete state.achieved[id]; render(); }); }
-  function uiAddArtifactState(id){ openDialog('Add State', `<label>State</label><input id=\"st\"/>`, ()=>{ const s=(document.getElementById('st').value||'Defined').trim(); const a=findArtifact(id); if(a){ a.states.add(s); render(); } }); }
-  function uiRemoveArtifactState(id){ const a=findArtifact(id); if(!a) return; const opts=Array.from(a.states).map(s=>`<option>${s}</option>`).join(''); openDialog('Remove State', `<label>Choose state</label><select id=\"st\">${opts}</select>`, ()=>{ const s=document.getElementById('st').value; a.states.delete(s); unmarkAchieved(id,s); render(); }); }
-  function uiEditIO(actId,kind,idx){ const a=findActivity(actId); if(!a) return; const item=(kind==='in'? a.inputs[idx]: a.outputs[idx]); openDialog('Edit IO State', `<div>Artifact: <strong>${findArtifact(item.artifactId).name}</strong></div><label>State</label><input id=\"st\" value=\"${item.state}\"/>`, ()=>{ const s=(document.getElementById('st').value||item.state).trim(); editIO(actId,kind,idx,s); }); }
-  function uiDeleteIO(actId,kind,idx){ openDialog('Delete IO Link', `<p>Remove this ${kind==='in'?'input':'output'} link?</p>`, ()=> deleteIO(actId,kind,idx)); }
-  function uiRenameActivity(id){ const a=findActivity(id); if(!a) return; openDialog('Rename Activity', `<label>New name</label><input id=\"name\" value=\"${a.name}\"/>`, ()=>{ const n=(document.getElementById('name').value||a.name).trim(); a.name=n; render(); }); }
-  function uiChangeParent(id){ const a=findActivity(id); if(!a) return; const opts=state.activities.filter(x=>x.id!==id).map(x=>`<option value=\"${x.id}\" ${a.parentId===x.id?'selected':''}>${x.name}</option>`).join(''); openDialog('Change Parent', `<label>Parent</label><select id=\"pid\"><option value=\"\">(none)</option>${opts}</select>`, ()=>{ const pid=document.getElementById('pid').value||null; a.parentId=pid||null; const parent=pid?findActivity(pid):null; if(parent) parent.isMaster=true; state.offsets[id]={dx:0,dy:0}; render(); }); }
-  function uiDeleteActivity(id){ openDialog('Delete Activity', `<p>Delete this activity and all its children?</p>`, ()=>{ const children=state.activities.filter(x=>x.parentId===id); children.forEach(ch=> uiDeleteActivity(ch.id)); state.activities=state.activities.filter(a=>a.id!==id); delete state.offsets[id]; if(state.selectedId===id) state.selectedId=null; render(); }); }
-
-  window.uiRenameArtifact = uiRenameArtifact; window.uiDeleteArtifact = uiDeleteArtifact; window.uiAddArtifactState = uiAddArtifactState; window.uiRemoveArtifactState = uiRemoveArtifactState; window.uiEditIO = uiEditIO; window.uiDeleteIO = uiDeleteIO; window.uiRenameActivity = uiRenameActivity; window.uiChangeParent = uiChangeParent; window.uiDeleteActivity = uiDeleteActivity;
+  // ===== Consistency =====
+  function hasChildren(id){ return state.activities.some(x=> x.parentId===id); }
+  function siblingsOf(a){ return state.activities.filter(x=> x.parentId===a.parentId && x.id!==a.id); }
+  function checkConsistencyRaw(){ const issues=[]; state.activities.forEach(a=>{ if(a.inputs.length===0) issues.push({rule:'Inputs', msg:`${a.name} has no identified inputs.`, actId:a.id}); if(a.outputs.length===0) issues.push({rule:'Outputs', msg:`${a.name} has no identified outputs.`, actId:a.id}); }); state.activities.forEach(p=>{ if(hasChildren(p.id)){ p.outputs.forEach(out=>{ const hasChild=state.activities.some(c=> c.parentId===p.id && c.outputs.some(o=> o.artifactId===out.artifactId && o.state===out.state)); if(!hasChild){ const art=findArtifact(out.artifactId); issues.push({rule:'Forward', msg:`${p.name} declares output ${art.name}::${out.state} without a child producer.`, actId:p.id}); } }); } }); state.activities.forEach(child=>{ const sibs=siblingsOf(child); child.inputs.forEach(i=>{ const bySib=sibs.some(s=> s.outputs.some(o=> o.artifactId===i.artifactId && o.state===i.state)); if(!bySib){ const parent=child.parentId?findActivity(child.parentId):null; if(parent){ const aligned=parent.inputs.some(pi=> pi.artifactId===i.artifactId && i.state===pi.state); if(!aligned){ const art=findArtifact(i.artifactId); issues.push({rule:'External-IN', msg:`${child.name} requires ${art.name}::${i.state} which is neither produced by a sibling nor listed as input of parent ${parent.name}.`, actId:child.id}); } } } }); }); return issues; }
+  function renderConsistencyReport(mode='flat'){ const issues=checkConsistencyRaw(); if(!issues.length){ document.getElementById('reportOut').innerHTML = '<pre>No issues found.</pre>'; return; } if(mode==='flat'){ document.getElementById('reportOut').innerHTML = '<pre>' + issues.map(x=>`• ${x.msg}`).join('\n') + '</pre>'; return; } if(mode==='byProcess'){ const byAct=new Map(); issues.forEach(x=>{ const a=findActivity(x.actId); const key=a?a.name:'(unknown)'; if(!byAct.has(key)) byAct.set(key,[]); byAct.get(key).push(x); }); let html=''; byAct.forEach((arr,name)=>{ html += `<div class=\"row\"><div><strong>${name}</strong></div></div><pre>` + arr.map(x=>`  - [${x.rule}] ${x.msg}`).join('\n') + '</pre>'; }); document.getElementById('reportOut').innerHTML = html; return; } if(mode==='byRule'){ const byRule=new Map(); issues.forEach(x=>{ if(!byRule.has(x.rule)) byRule.set(x.rule,[]); byRule.get(x.rule).push(x); }); let html=''; byRule.forEach((arr,rule)=>{ html += `<div class=\"row\"><div><strong>${rule}</strong></div></div><pre>` + arr.map(x=>{ const a=findActivity(x.actId); const nm=a?a.name:'(unknown)'; return `  - ${nm}: ${x.msg}`; }).join('\n') + '</pre>'; }); document.getElementById('reportOut').innerHTML = html; return; } }
 
   // ===== Layout =====
   const BOX_W=260, BOX_H=150, PAD=22, HEADER_H=24, IO_SPACE=80; const ROOT_GAP_Y=40, ROOT_START_X=40, ROOT_START_Y=40;
-  function buildTree(){ const byParent=new Map(); state.activities.forEach(a=>{ const key=a.parentId||'__root__'; if(!byParent.has(key)) byParent.set(key,[]); byParent.get(key).push(a); }); function node(a){ return { act:a, children:(byParent.get(a.id)||[]).map(node), w:BOX_W+2*IO_SPACE, h:BOX_H, x:0,y:0}; } const roots=(byParent.get('__root__')||[]).map(node); return {roots}; }
-  function autoPlace(node,x,y){ node.x=x; node.y=y; const innerX = x + IO_SPACE + PAD; let curY = y + HEADER_H + PAD; node.children.forEach((ch)=>{ autoPlace(ch, innerX, curY); curY += BOX_H + PAD; }); }
-  function applyOffsets(node){ const off = state.offsets[node.act.id]; if(off){ node.x += off.dx||0; node.y += off.dy||0; } node.children.forEach(applyOffsets); }
-  function growToContain(node){ if(node.children.length===0) return {w:BOX_W+2*IO_SPACE, h:BOX_H}; let minY=node.y+HEADER_H+PAD, maxY=minY+BOX_H; let maxChildRight=node.x+IO_SPACE+PAD+BOX_W; node.children.forEach(ch=>{ const dims=growToContain(ch); minY=Math.min(minY,ch.y); maxY=Math.max(maxY,ch.y+dims.h+PAD); maxChildRight=Math.max(maxChildRight,ch.x+dims.w-IO_SPACE); }); const innerH=Math.max(BOX_H, maxY-node.y); const innerW=Math.max(BOX_W+PAD*2, (maxChildRight-(node.x+IO_SPACE))+PAD); node.h=innerH; node.w=innerW+2*IO_SPACE; return {w:node.w,h:node.h}; }
-  function layout(){ const tree=buildTree(); let curY=ROOT_START_Y; tree.roots.forEach(r=>{ autoPlace(r, ROOT_START_X, curY); curY += BOX_H + ROOT_GAP_Y; }); tree.roots.forEach(applyOffsets); tree.roots.forEach(growToContain); return tree; }
+  function buildTree(){ const byP=new Map(); state.activities.forEach(a=>{ const k=a.parentId||'__root__'; if(!byP.has(k)) byP.set(k,[]); byP.get(k).push(a); }); const seen=new Set(); function node(a){ if(seen.has(a.id)) return {act:a,children:[],w:BOX_W+2*IO_SPACE,h:BOX_H,x:0,y:0}; seen.add(a.id); const kids=(byP.get(a.id)||[]).filter(ch=> ch && ch.id!==a.id); return {act:a,children:kids.map(node),w:BOX_W+2*IO_SPACE,h:BOX_H,x:0,y:0}; } return {roots:(byP.get('__root__')||[]).map(node)}; }
+  function autoPlace(n,x,y){ n.x=x; n.y=y; const innerX=x+IO_SPACE+PAD; let cy=y+HEADER_H+PAD; n.children.forEach(ch=>{ autoPlace(ch,innerX,cy); cy+=BOX_H+PAD; }); }
+  function applyOffsets(n){ const off=state.offsets[n.act.id]; if(off){ n.x+=off.dx||0; n.y+=off.dy||0; } n.children.forEach(applyOffsets); }
+  function growToContain(n){ if(n.children.length===0) return {w:BOX_W+2*IO_SPACE,h:BOX_H}; let minY=n.y+HEADER_H+PAD, maxY=minY+BOX_H, maxR=n.x+IO_SPACE+PAD+BOX_W; n.children.forEach(ch=>{ const d=growToContain(ch); minY=Math.min(minY,ch.y); maxY=Math.max(maxY,ch.y+d.h+PAD); maxR=Math.max(maxR,ch.x+d.w-IO_SPACE); }); const innerH=Math.max(BOX_H,maxY-n.y); const innerW=Math.max(BOX_W+PAD*2,(maxR-(n.x+IO_SPACE))+PAD); n.h=innerH; n.w=innerW+2*IO_SPACE; return {w:n.w,h:n.h}; }
+  function layout(){ const t=buildTree(); let y=ROOT_START_Y; t.roots.forEach(r=>{ autoPlace(r,ROOT_START_X, y); y += BOX_H + ROOT_GAP_Y; }); t.roots.forEach(applyOffsets); t.roots.forEach(growToContain); return t; }
 
-  // ==== Arrow grouping + status coloring ====
-  function groupByArtifact(ioArray){ const map=new Map(); ioArray.forEach(io=>{ const key=io.artifactId; if(!map.has(key)) map.set(key, new Set()); map.get(key).add(io.state); }); return map; }
-  function formatStates(statesSet){ const arr=Array.from(statesSet); return arr.length>1 ? `(${arr.map(s=>`_${s}_`).join(' , ')})` : `_${arr[0]}_`; }
-  function colorForStates(artifactId, statesSet){ const arr=Array.from(statesSet); const achievedCount = arr.filter(s=> isAchieved(artifactId, s)).length; if(achievedCount===arr.length && arr.length>0) return '#34d399'; if(achievedCount===0) return '#93c5fd'; return '#fbbf24'; }
+  // ===== Edge helpers =====
+  function indexNodes(tree){ const m=new Map(); function rec(n){ m.set(n.act.id,{x:n.x,y:n.y,w:n.w,h:n.h}); n.children.forEach(rec); } tree.roots.forEach(rec); return m; }
+  function parentChain(id){ const chain=[]; let cur=findActivity(id); while(cur && cur.parentId){ chain.push(cur.parentId); cur=findActivity(cur.parentId); } return chain; }
+  function lca(aId,bId){ const aChain=new Set([aId,...parentChain(aId)]); let cur=bId; while(cur){ if(aChain.has(cur)) return cur; const p=findActivity(cur)?.parentId; if(!p) return null; cur=p; } return null; }
+  function parentAcknowledges(parentId, artId, st){ if(!parentId) return false; const p=findActivity(parentId); if(!p) return false; return p.outputs.some(o=>o.artifactId===artId && o.state===st) || p.inputs.some(i=>i.artifactId===artId && i.state===st); }
+  function buildIOIndex(){ const key=(aid,st)=>`${aid}::${st}`; const prods=new Map(), cons=new Map(); state.activities.forEach(a=>{ a.outputs.forEach(o=>{ const k=key(o.artifactId,o.state); if(!prods.has(k)) prods.set(k,[]); prods.get(k).push(a.id); }); a.inputs.forEach(i=>{ const k=key(i.artifactId,i.state); if(!cons.has(k)) cons.set(k,[]); cons.get(k).push(a.id); }); }); return {prods,cons}; }
 
+  function colorForStates(artId, states){
+  const smEl=document.getElementById('statusMode');
+  const statusOn = smEl ? smEl.checked : true;
+  if(!statusOn) return '#60a5fa';
+  const total = Array.isArray(states)? states.length : 0;
+  const achievedCount = total>0 ? states.filter(st=> isAchieved(artId, st)).length : 0;
+  if(total>0 && achievedCount===total) return '#34d399';
+  if(achievedCount===0) return '#60a5fa';
+  return '#fbbf24';
+}
+  function anchorRight(r,slot=0){ return {x:r.x+r.w, y:r.y+HEADER_H+PAD+16*slot}; }
+  function anchorLeft(r,slot=0){ return {x:r.x, y:r.y+HEADER_H+PAD+16*slot}; }
+  function anchorOnParentEdge(pRect, near){ const left=Math.abs(near.x-pRect.x), right=Math.abs(near.x-(pRect.x+pRect.w)); return (left<right)? {x:pRect.x+2, y:near.y} : {x:pRect.x+pRect.w-2, y:near.y}; }
+  function edgeKey(fromId,toId,artId,st){ return `${fromId}->${toId}:${artId}::${st}`; }
+
+  function drawPath(layer, points, color, key, labelText){ const g=document.createElementNS('http://www.w3.org/2000/svg','g'); const path=document.createElementNS('http://www.w3.org/2000/svg','path'); let d=`M ${points[0].x},${points[0].y}`; for(let i=1;i<points.length;i++){ d+=` L ${points[i].x},${points[i].y}`; } path.setAttribute('d', d); path.setAttribute('fill','none'); path.setAttribute('stroke', color); path.setAttribute('stroke-width','1.6'); path.setAttribute('marker-end','url(#arrowhead)'); if(state.selectedEdge===key) path.classList.add('edge-selected'); if(document.getElementById('editConnectors').checked){ path.style.cursor='pointer'; path.addEventListener('click', (ev)=>{ ev.stopPropagation(); if(state.selectedEdge===key){ const svg=document.getElementById('svg'); const rect=svg.getBoundingClientRect(); const mx=(ev.clientX-rect.left - state.pan.x)/state.zoom; const my=(ev.clientY-rect.top  - state.pan.y)/state.zoom; if(!state.routes[key]) state.routes[key]=[]; state.routes[key].push({x:mx,y:my}); render(); } else { state.selectedEdge=key; render(); } }); } g.appendChild(path); const mid=points[Math.floor(points.length/2)]; const lbl=document.createElementNS('http://www.w3.org/2000/svg','text'); lbl.setAttribute('x', mid.x+4); lbl.setAttribute('y', mid.y-4); lbl.setAttribute('fill','#9ca3af'); lbl.setAttribute('font-size','11'); lbl.textContent=labelText; g.appendChild(lbl); if(document.getElementById('editConnectors').checked && state.selectedEdge===key){ const pts=state.routes[key]||[]; pts.forEach((p)=>{ const c=document.createElementNS('http://www.w3.org/2000/svg','circle'); c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', 6); c.setAttribute('fill', '#f59e0b'); c.setAttribute('stroke', '#111'); c.style.cursor='grab'; let moving=false; const onMove=(ev)=>{ if(!moving) return; const svg=document.getElementById('svg'); const rect=svg.getBoundingClientRect(); const mx=(ev.clientX-rect.left - state.pan.x)/state.zoom; const my=(ev.clientY-rect.top  - state.pan.y)/state.zoom; p.x=mx; p.y=my; render(); }; c.addEventListener('mousedown', (ev)=>{ ev.stopPropagation(); moving=true; window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', ()=>{ moving=false; window.removeEventListener('mousemove', onMove); }, {once:true}); }); g.appendChild(c); }); } layer.appendChild(g); }
+
+  function addRoutePoints(key, basePoints){ const arr = state.routes[key] ? state.routes[key] : []; return [basePoints[0], ...arr, basePoints[1]]; }
+
+  // ===== Render =====
   function render(){
-    // Tree panel
-    const treePanel=document.getElementById('tree'); treePanel.innerHTML=''; const rootsList=state.activities.filter(a=>!a.parentId); const ul=document.createElement('ul'); function makeNode(a){ const li=document.createElement('li'); li.className='node'; li.textContent=a.name+(a.isMaster?' [master]':''); li.onclick=()=>{ state.selectedId=a.id; render(); }; const kids=state.activities.filter(c=>c.parentId===a.id); if(kids.length){ const ul2=document.createElement('ul'); kids.forEach(ch=> ul2.appendChild(makeNode(ch))); li.appendChild(ul2); } return li; } rootsList.forEach(r=> ul.appendChild(makeNode(r))); treePanel.appendChild(ul);
+    // Model tree
+    const treePanel=document.getElementById('tree'); treePanel.innerHTML=''; const roots=state.activities.filter(a=>!a.parentId); const ul=document.createElement('ul'); const visitedGlobal=new Set(); function liNode(a){ if(visitedGlobal.has(a.id)) return document.createTextNode(''); visitedGlobal.add(a.id); const li=document.createElement('li'); li.className='node'; li.textContent=a.name+(a.isMaster?' [master]':''); li.onclick=()=>{ state.selectedId=a.id; render(); }; const kids=state.activities.filter(c=>c.parentId===a.id && c.id!==a.id); if(kids.length){ const ul2=document.createElement('ul'); kids.forEach(k=> ul2.appendChild(liNode(k))); li.appendChild(ul2); } return li; } roots.forEach(r=> ul.appendChild(liNode(r))); treePanel.appendChild(ul);
 
     // Artifacts panel
-    const artsDiv=document.getElementById('artifacts'); artsDiv.innerHTML = '<div class="list">' + state.artifacts.map(a=>{ const states=Array.from(a.states); const ach=state.achieved[a.id]? Array.from(state.achieved[a.id]): []; return `<div class=\"row\"><div><strong>${a.name}</strong> <span class=\"meta\">[#${a.id}]</span><br/><span class=\"meta\">States: ${states.join(', ')||'(none)'} </span></div><div class=\"row-actions\"><button onclick=\"uiRenameArtifact('${a.id}')\">Rename</button><button class=\"btn-danger\" onclick=\"uiDeleteArtifact('${a.id}')\">Delete</button></div></div><div class=\"row\" style=\"margin-left:.5rem\"><div>Achieved: <span class=\"meta\">${ach.join(', ')||'(none)'}</span></div><div class=\"row-actions\"><button onclick=\"openLifecycle('${a.id}')\">Open Lifecycle</button></div></div>`; }).join('') + '</div>';
+    const artsDiv=document.getElementById('artifacts'); artsDiv.innerHTML = '<div class="list">' + state.artifacts.map(a=>{ const states=[...a.states]; const ach=state.achieved[a.id]?[...state.achieved[a.id]]:[]; return `<div class=\"row\"><div><strong>${a.name}</strong> <span class=\"meta\">[#${a.id}]</span><br/><span class=\"meta\">States: ${states.join(', ')||'(none)'} </span></div><div class=\"row-actions\"><button onclick=\"uiRenameArtifact('${a.id}')\">Rename</button><button class=\"btn-danger\" onclick=\"uiDeleteArtifact('${a.id}')\">Delete</button></div></div><div class=\"row\" style=\"margin-left:.5rem\"><div>Achieved: <span class=\"meta\">${ach.join(', ')||'(none)'}</span></div><div class=\"row-actions\"><button onclick=\"openLifecycle('${a.id}')\">Open Lifecycle</button></div></div>`; }).join('') + '</div>';
 
-    // SVG
+    // Canvas layer
     const layer=document.getElementById('zoomLayer'); while(layer.firstChild) layer.removeChild(layer.firstChild);
-    const defs=document.createElementNS('http://www.w3.org/2000/svg','defs'); const marker=document.createElementNS('http://www.w3.org/2000/svg','marker'); marker.setAttribute('id','arrowhead'); marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','6'); marker.setAttribute('refX','7'); marker.setAttribute('refY','3'); marker.setAttribute('orient','auto'); const path=document.createElementNS('http://www.w3.org/2000/svg','path'); path.setAttribute('d','M0,0 L8,3 L0,6 Z'); path.setAttribute('fill','#e5e7eb'); marker.appendChild(path); defs.appendChild(marker); layer.appendChild(defs);
+    const defs=document.createElementNS('http://www.w3.org/2000/svg','defs'); const marker=document.createElementNS('http://www.w3.org/2000/svg','marker'); marker.setAttribute('id','arrowhead'); marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','6'); marker.setAttribute('refX','7'); marker.setAttribute('refY','3'); marker.setAttribute('orient','auto'); const mpath=document.createElementNS('http://www.w3.org/2000/svg','path'); mpath.setAttribute('d','M0,0 L8,3 L0,6 Z'); mpath.setAttribute('fill','#e5e7eb'); marker.appendChild(mpath); defs.appendChild(marker); layer.appendChild(defs);
 
-    const t=layout();
-    function drawNode(n){ const a=n.act; const x=n.x,y=n.y,w=n.w,h=n.h; const rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); rect.setAttribute('x',x); rect.setAttribute('y',y); rect.setAttribute('width',w); rect.setAttribute('height',h); rect.setAttribute('rx',10); rect.setAttribute('fill','#111827'); rect.setAttribute('stroke', a.isMaster?'#34d399':'#60a5fa'); rect.setAttribute('stroke-width', a.isMaster?3:2); layer.appendChild(rect); const label=document.createElementNS('http://www.w3.org/2000/svg','text'); label.setAttribute('x', x+IO_SPACE+10); label.setAttribute('y', y+18); label.setAttribute('fill','#e5e7eb'); label.setAttribute('font-size','12'); label.textContent=a.name; layer.appendChild(label); const hit=document.createElementNS('http://www.w3.org/2000/svg','rect'); hit.setAttribute('x',x); hit.setAttribute('y',y); hit.setAttribute('width',w); hit.setAttribute('height',h); hit.setAttribute('fill','transparent'); hit.style.cursor='move'; hit.addEventListener('mousedown', (ev)=> startDrag(ev, n)); hit.addEventListener('click', ()=>{ state.selectedId=a.id; render(); }); layer.appendChild(hit);
+    const t=layout(); const idx=indexNodes(t);
 
-      const inputsGrouped = groupByArtifact(a.inputs);
-      const outputsGrouped = groupByArtifact(a.outputs);
-      const leftEdge=x, rightEdge=x+w; let inY=y+HEADER_H+PAD, outY=y+HEADER_H+PAD;
-      Array.from(inputsGrouped.entries()).forEach(([artId, states], idx)=>{
-        const art=findArtifact(artId); const yy=inY + idx*18; const color = document.getElementById('statusMode').checked ? colorForStates(artId, states) : '#93c5fd'; const line=document.createElementNS('http://www.w3.org/2000/svg','line'); line.setAttribute('x1', leftEdge-IO_SPACE); line.setAttribute('y1', yy-6); line.setAttribute('x2', leftEdge); line.setAttribute('y2', yy-6); line.setAttribute('stroke', color); line.setAttribute('stroke-width','1.6'); line.setAttribute('marker-end','url(#arrowhead)'); layer.appendChild(line); const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', leftEdge-IO_SPACE+4); t.setAttribute('y', yy); t.setAttribute('fill','#9ca3af'); t.setAttribute('font-size','11'); t.textContent = `${art.name}::${formatStates(states)}`; layer.appendChild(t); });
-      Array.from(outputsGrouped.entries()).forEach(([artId, states], idx)=>{
-        const art=findArtifact(artId); const yy=outY + idx*18; const color = document.getElementById('statusMode').checked ? colorForStates(artId, states) : '#86efac'; const line=document.createElementNS('http://www.w3.org/2000/svg','line'); line.setAttribute('x1', rightEdge); line.setAttribute('y1', yy-6); line.setAttribute('x2', rightEdge+IO_SPACE); line.setAttribute('y2', yy-6); line.setAttribute('stroke', color); line.setAttribute('stroke-width','1.6'); line.setAttribute('marker-end','url(#arrowhead)'); layer.appendChild(line); const t=document.createElementNS('http://www.w3.org/2000/svg','text'); t.setAttribute('x', rightEdge+IO_SPACE+4); t.setAttribute('y', yy); t.setAttribute('fill','#9ca3af'); t.setAttribute('font-size','11'); t.textContent = `${art.name}::${formatStates(states)}`; layer.appendChild(t); });
-
-      n.children.forEach(drawNode);
-    }
+    function drawNode(n){ const a=n.act; const r=idx.get(a.id); const rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); rect.setAttribute('x',r.x); rect.setAttribute('y',r.y); rect.setAttribute('width',r.w); rect.setAttribute('height',r.h); rect.setAttribute('rx',10); rect.setAttribute('fill','#111827'); rect.setAttribute('stroke', a.isMaster?'#34d399':'#60a5fa'); rect.setAttribute('stroke-width', a.isMaster?3:2); layer.appendChild(rect); const label=document.createElementNS('http://www.w3.org/2000/svg','text'); label.setAttribute('x', r.x+IO_SPACE+10); label.setAttribute('y', r.y+18); label.setAttribute('fill','#e5e7eb'); label.setAttribute('font-size','12'); label.textContent=a.name; layer.appendChild(label); const hit=document.createElementNS('http://www.w3.org/2000/svg','rect'); hit.setAttribute('x',r.x); hit.setAttribute('y',r.y); hit.setAttribute('width',r.w); hit.setAttribute('height',r.h); hit.setAttribute('fill','transparent'); hit.style.cursor='move'; hit.addEventListener('mousedown',(ev)=> startDrag(ev,n)); hit.addEventListener('click',()=>{ state.selectedId=a.id; render(); }); layer.appendChild(hit); n.children.forEach(drawNode); }
     t.roots.forEach(drawNode);
 
+    // Build IO index + state maps
+    const {prods,cons}=buildIOIndex();
+    const producersByArt=new Map(); const consumersByArt=new Map();
+    function addSet(map, artId, actId, st){ if(!map.has(artId)) map.set(artId, new Map()); const m=map.get(artId); if(!m.has(actId)) m.set(actId, new Set()); m.get(actId).add(st); }
+    state.activities.forEach(a=>{
+      a.outputs.forEach(o=> addSet(producersByArt, o.artifactId, a.id, o.state));
+      a.inputs.forEach(i=> addSet(consumersByArt, i.artifactId, a.id, i.state));
+    
+    // keep Status & Lifecycle panel in sync with artifacts
+    try{ if(document.getElementById('statusArtifact')) renderStatusPanel(); }catch(e){}
+});
+
+    const externalInputs=[]; const goalOutputs=[];
+
+    // Aggregation for sibling connectors
+    const agg = new Map(); // key: `${fromId}|${toId}|${artId}|${route}` -> Set(states)
+    function pushAgg(fromId,toId,artId,route,st){ const k=`${fromId}|${toId}|${artId}|${route}`; if(!agg.has(k)) agg.set(k,new Set()); agg.get(k).add(st); }
+
+    // Determine connections per artifact
+    producersByArt.forEach((pMap, artId)=>{
+      const cMap = consumersByArt.get(artId) || new Map();
+      pMap.forEach((pStates, pId)=>{
+        cMap.forEach((cStates, cId)=>{
+          // intersect states
+          const common=[...pStates].filter(s=> cStates.has(s));
+          if(common.length===0) return;
+          const l = lca(pId, cId); const pPar=findActivity(pId).parentId||null; const cPar=findActivity(cId).parentId||null;
+          if(!l || pPar!==cPar) return; // connect only within same parent
+          common.forEach(st=>{
+            const route = parentAcknowledges(l, artId, st) ? 'viaParent' : 'direct';
+            // aggregate by identical endpoints and route
+            if(route==='viaParent'){
+              pushAgg(pId, l, artId, route, st);
+              pushAgg(l, cId, artId, route, st);
+            } else {
+              pushAgg(pId, cId, artId, route, st);
+            }
+          });
+        });
+      });
+    });
+
+    // Build external inputs and goals (aggregate per activity+artifact)
+    const extAgg=new Map(); // key: `to|artId` -> Set(states)
+    const goalAgg=new Map(); // key: `from|artId` -> Set(states)
+
+    // We use earlier keys iteration to decide external vs goal eligibility per state
+    const keys=new Set([...prods.keys(), ...cons.keys()]);
+    keys.forEach(k=>{
+      const [artId, st] = k.split('::'); const producers=(prods.get(k)||[]).filter(id=> !!findActivity(id)); const consumers=(cons.get(k)||[]).filter(id=> !!findActivity(id));
+      consumers.forEach(c=>{
+        const parent=findActivity(findActivity(c).parentId||null); const reflected = parent && parent.inputs.some(pi=> pi.artifactId===artId && pi.state===st);
+        const hasSiblingProducer = producers.some(p=>{ const l=lca(p,c); const pPar=findActivity(p).parentId||null; return l && pPar===findActivity(c).parentId && l!==p && l!==c; });
+        if(!hasSiblingProducer && !reflected){ const key2=`${c}|${artId}`; if(!extAgg.has(key2)) extAgg.set(key2,new Set()); extAgg.get(key2).add(st); }
+      });
+      producers.forEach(p=>{
+        const parent=findActivity(findActivity(p).parentId||null); const reflected = parent && parent.outputs.some(po=> po.artifactId===artId && po.state===st);
+        const hasSiblingConsumer = consumers.some(c=>{ const l=lca(p,c); const cPar=findActivity(c).parentId||null; return l && cPar===findActivity(p).parentId && l!==p && l!==c; });
+        if(!hasSiblingConsumer && !reflected){ const key3=`${p}|${artId}`; if(!goalAgg.has(key3)) goalAgg.set(key3,new Set()); goalAgg.get(key3).add(st); }
+      });
+    });
+
+    // Draw aggregated sibling connectors
+    agg.forEach((stSet, keyStr)=>{
+      const [fromId,toId,artId,route]=keyStr.split('|'); const states=[...stSet].sort(); const color=colorForStates(artId, states);
+      const fromRect=idx.get(fromId); const toRect=idx.get(toId);
+      if(route==='viaParent'){
+        // viaParent aggregates were split into two segments in pushAgg
+        // segment fromId -> toId (here toId may be the parent or the consumer depending on group)
+        const from = (fromId===toId)? anchorRight(fromRect) : (hasChildren(fromId)? anchorOnParentEdge(fromRect, {x:fromRect.x+fromRect.w, y:fromRect.y+HEADER_H+PAD}) : anchorRight(fromRect));
+        const to = (hasChildren(toId)? anchorOnParentEdge(toRect, from) : anchorLeft(toRect));
+        const key=edgeKey(fromId,toId,artId,states.join(','));
+        const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`;
+        drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
+      } else {
+        const from=anchorRight(fromRect); const to=anchorLeft(toRect);
+        const key=edgeKey(fromId,toId,artId,states.join(','));
+        const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`;
+        drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
+      }
+    });
+
+    // Draw aggregated external inputs
+    extAgg.forEach((stSet, k)=>{
+      const [toId, artId]=k.split('|'); const states=[...stSet].sort(); const rect=idx.get(toId); const color=colorForStates(artId, states);
+      const from={x:rect.x-IO_SPACE,y:rect.y+HEADER_H+PAD-6}; const to={x:rect.x,y:rect.y+HEADER_H+PAD-6};
+      const key=`ext->${toId}:${artId}::${states.join(',')}`;
+      const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`;
+      drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
+    });
+
+    // Draw aggregated goal outputs
+    goalAgg.forEach((stSet, k)=>{
+      const [fromId, artId]=k.split('|'); const states=[...stSet].sort(); const rect=idx.get(fromId); const color=colorForStates(artId, states);
+      const from={x:rect.x+rect.w,y:rect.y+HEADER_H+PAD-6}; const to={x:rect.x+rect.w+IO_SPACE,y:rect.y+HEADER_H+PAD-6};
+      const key=`${fromId}->ext:${artId}::${states.join(',')}`;
+      const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`;
+      drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
+    });
+
+    // Internal parent↔child arrows (aggregated by artifact & direction)
+const intInAgg=new Map(); const intOutAgg=new Map();
+state.activities.forEach(child=>{
+  if(!child.parentId) return; const parent=findActivity(child.parentId);
+  // aggregate Parent input → Child input
+  child.inputs.forEach(i=>{ const ref = parent.inputs.some(pi=> pi.artifactId===i.artifactId && pi.state===i.state); if(ref){ const k=parent.id+'|'+child.id+'|'+i.artifactId+'|in'; if(!intInAgg.has(k)) intInAgg.set(k,new Set()); intInAgg.get(k).add(i.state); } });
+  // aggregate Child output → Parent output
+  child.outputs.forEach(o=>{ const ref = parent.outputs.some(po=> po.artifactId===o.artifactId && po.state===o.state); if(ref){ const k=child.id+'|'+parent.id+'|'+o.artifactId+'|out'; if(!intOutAgg.has(k)) intOutAgg.set(k,new Set()); intOutAgg.get(k).add(o.state); } });
+});
+
+intInAgg.forEach((stSet,k)=>{ const [pId,cId,artId,_]=k.split('|'); const states=[...stSet].sort(); const pRect=idx.get(pId); const cRect=idx.get(cId); const color=colorForStates(artId, states); const from=anchorOnParentEdge(pRect, {x:pRect.x, y:cRect.y+HEADER_H+PAD}); const to=anchorLeft(cRect); const key=edgeKey(pId, cId, artId, states.join(','))+':internal-in'; const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label); });
+
+intOutAgg.forEach((stSet,k)=>{ const [cId,pId,artId,_]=k.split('|'); const states=[...stSet].sort(); const pRect=idx.get(pId); const cRect=idx.get(cId); const color=colorForStates(artId, states); const from=anchorRight(cRect); const to=anchorOnParentEdge(pRect, {x:cRect.x+cRect.w, y:cRect.y+HEADER_H+PAD}); const key=edgeKey(cId, pId, artId, states.join(','))+':internal-out'; const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label); });
+
     // Props panel
-    const props=document.getElementById('props'); const a=state.selectedId?findActivity(state.selectedId):null; if(!a){ props.innerHTML='<div class="meta">Select a box to edit</div>'; } else { const kids=state.activities.filter(x=>x.parentId===a.id); const inputsList=a.inputs.map((i,idx)=>{ const art=findArtifact(i.artifactId); return `<div class=\"row\"><div>IN: ${art.name}::_${i.state}_</div><div class=\"row-actions\"><button onclick=\"uiEditIO('${a.id}','in',${idx})\">Edit</button><button class=\"btn-danger\" onclick=\"uiDeleteIO('${a.id}','in',${idx})\">Delete</button></div></div>`; }).join(''); const outputsList=a.outputs.map((o,idx)=>{ const art=findArtifact(o.artifactId); return `<div class=\"row\"><div>OUT: ${art.name}::_${o.state}_</div><div class=\"row-actions\"><button onclick=\"uiEditIO('${a.id}','out',${idx})\">Edit</button><button class=\"btn-danger\" onclick=\"uiDeleteIO('${a.id}','out',${idx})\">Delete</button></div></div>`; }).join(''); props.innerHTML = `<div class=\"list\"><div class=\"row\"><div><strong>${a.name}</strong> <span class=\"meta\">[#${a.id}] ${a.isMaster?'(master)':''}</span></div><div class=\"row-actions\"><button onclick=\"uiRenameActivity('${a.id}')\">Rename</button><button onclick=\"uiChangeParent('${a.id}')\">Change Parent</button><button class=\"btn-danger\" onclick=\"uiDeleteActivity('${a.id}')\">Delete</button></div></div><div class=\"row\"><div>Children: <span class=\"meta\">${kids.map(k=>k.name).join(', ')||'(none)'}</span></div><div></div></div><div><h3 style=\"margin:.5rem 0 .25rem\">Inputs</h3>${inputsList||'<div class=\"meta\">(none)</div>'}</div><div><h3 style=\"margin:.5rem 0 .25rem\">Outputs</h3>${outputsList||'<div class=\"meta\">(none)</div>'}</div></div>`; }
+    const props=document.getElementById('props'); const a=state.selectedId?findActivity(state.selectedId):null; if(!a){ props.innerHTML='<div class="meta">Select a box to edit</div>'; }
+    else { const kids=state.activities.filter(x=>x.parentId===a.id); const inputsList=a.inputs.map((i,idx)=>{ const art=findArtifact(i.artifactId); return `<div class=\"row\"><div>IN: ${art.name}::_${i.state}_</div><div class=\"row-actions\"><button onclick=\"uiEditIO('${a.id}','in',${idx})\">Edit</button><button class=\"btn-danger\" onclick=\"uiDeleteIO('${a.id}','in',${idx})\">Delete</button></div></div>`; }).join(''); const outputsList=a.outputs.map((o,idx)=>{ const art=findArtifact(o.artifactId); return `<div class=\"row\"><div>OUT: ${art.name}::_${o.state}_</div><div class=\"row-actions\"><button onclick=\"uiEditIO('${a.id}','out',${idx})\">Edit</button><button class=\"btn-danger\" onclick=\"uiDeleteIO('${a.id}','out',${idx})\">Delete</button></div></div>`; }).join(''); props.innerHTML = `<div class=\"list\"><div class=\"row\"><div><strong>${a.name}</strong> <span class=\"meta\">[#${a.id}] ${a.isMaster?'(master)':''}</span></div><div class=\"row-actions\"><button onclick=\"uiRenameActivity('${a.id}')\">Rename</button><button onclick=\"uiChangeParent('${a.id}')\">Change Parent</button><button class=\"btn-danger\" onclick=\"uiDeleteActivity('${a.id}')\">Delete</button></div></div><div class=\"row\"><div>Children: <span class=\"meta\">${kids.map(k=>k.name).join(', ')||'(none)'}</span></div><div></div></div><div class=\"row\"><div><strong>Inputs</strong></div><div class=\"row-actions\"><button onclick=\"uiQuickAddIO('${a.id}','in')\">+ Input</button></div></div>${inputsList||'<div class=\"meta\" style=\"margin:.25rem 0 .5rem\">(none)</div>'}<div class=\"row\"><div><strong>Outputs</strong></div><div class=\"row-actions\"><button onclick=\"uiQuickAddIO('${a.id}','out')\">+ Output</button></div></div>${outputsList||'<div class=\"meta\" style=\"margin:.25rem 0 .5rem\">(none)</div>'}</div>`; }
 
-    // Status panel
-    const status=document.getElementById('status'); status.innerHTML=''; const list=document.createElement('div'); list.className='list'; state.artifacts.forEach(art=>{ const row=document.createElement('div'); row.className='row'; const left=document.createElement('div'); left.innerHTML=`<strong>${art.name}</strong> <span class=\"meta\">[#${art.id}]</span>`; const right=document.createElement('div'); const states=Array.from(art.states); right.innerHTML = states.map(s=>{ const chk = isAchieved(art.id,s) ? 'checked' : ''; return `<label style=\"margin-right:.35rem\"><input type=\"checkbox\" ${chk} onchange=\"(function(){ ${chk?'':' '} })()\" data-art=\"${art.id}\" data-st=\"${s}\" class=\"achChk\"/> <span class=\"badge ${chk?'badge-green':'badge-gray'}\">${s}</span></label>`; }).join(''); row.appendChild(left); row.appendChild(right); list.appendChild(row); }); status.appendChild(list);
-    // wire achieved toggles
-    Array.from(document.getElementsByClassName('achChk')).forEach(el=>{ el.addEventListener('change', (e)=>{ const artId=e.target.getAttribute('data-art'); const st=e.target.getAttribute('data-st'); if(e.target.checked) markAchieved(artId,st); else unmarkAchieved(artId,st); render(); }); });
-
-    document.getElementById('zoomLayer').setAttribute('transform', `translate(${state.pan.x},${state.pan.y}) scale(${state.zoom})`);
+    layer.setAttribute('transform', `translate(${state.pan.x},${state.pan.y}) scale(${state.zoom})`);
   }
 
-  // ==== Lifecycle view (statechart for selected artifact) ====
-  function openLifecycle(artifactId){ const art=findArtifact(artifactId); if(!art) return; const dlg=document.getElementById('lcDlg'); document.getElementById('lcTitle').textContent = `Lifecycle — ${art.name}`; dlg.showModal(); const layer=document.getElementById('lcLayer'); while(layer.firstChild) layer.removeChild(layer.firstChild);
-    // Build transitions: per activity, connect IN states of this artifact to OUT states of this artifact.
-    const states=Array.from(art.states); const nodes=states.map((s,i)=>({s, x:60+i*120, y:100, achieved:isAchieved(art.id,s)})); // simple row layout
-    const startNode={s:'START', x:40, y:220};
-    const transitions=[]; state.activities.forEach(a=>{ const ins=a.inputs.filter(i=> i.artifactId===art.id).map(i=> i.state); const outs=a.outputs.filter(o=> o.artifactId===art.id).map(o=> o.state); if(outs.length && ins.length){ ins.forEach(si=> outs.forEach(so=> transitions.push({from:si,to:so, act:a.name}))); } else if(outs.length && ins.length===0){ outs.forEach(so=> transitions.push({from:'START', to:so, act:a.name})); } });
-    // Draw nodes
-    nodes.forEach((n,idx)=>{ const color = isAchieved(art.id, n.s) ? '#34d399' : '#60a5fa'; const circle=document.createElementNS('http://www.w3.org/2000/svg','circle'); circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y); circle.setAttribute('r', 16); circle.setAttribute('fill', 'transparent'); circle.setAttribute('stroke', color); circle.setAttribute('stroke-width', 2); layer.appendChild(circle); const label=document.createElementNS('http://www.w3.org/2000/svg','text'); label.setAttribute('x', n.x-20); label.setAttribute('y', n.y+34); label.setAttribute('fill','#e5e7eb'); label.setAttribute('font-size','11'); label.textContent=n.s; layer.appendChild(label); });
-    // Draw START if used
-    if(transitions.some(t=> t.from==='START')){ const start=document.createElementNS('http://www.w3.org/2000/svg','rect'); start.setAttribute('x', startNode.x-28); start.setAttribute('y', startNode.y-14); start.setAttribute('width', 56); start.setAttribute('height', 28); start.setAttribute('rx', 6); start.setAttribute('fill','#1f2937'); start.setAttribute('stroke','#9ca3af'); layer.appendChild(start); const stlabel=document.createElementNS('http://www.w3.org/2000/svg','text'); stlabel.setAttribute('x', startNode.x-18); stlabel.setAttribute('y', startNode.y+4); stlabel.setAttribute('fill','#e5e7eb'); stlabel.setAttribute('font-size','11'); stlabel.textContent='START'; layer.appendChild(stlabel); }
-    // Draw edges
-    transitions.forEach((tr,idx)=>{ const fromNode = tr.from==='START'? startNode : nodes.find(n=> n.s===tr.from); const toNode = nodes.find(n=> n.s===tr.to); if(!fromNode || !toNode) return; const y = Math.min(fromNode.y, toNode.y) - 40 - (idx%3)*12; const path=document.createElementNS('http://www.w3.org/2000/svg','path'); const d = `M ${fromNode.x},${fromNode.y} C ${fromNode.x},${y} ${toNode.x},${y} ${toNode.x},${toNode.y}`; path.setAttribute('d', d); path.setAttribute('fill','none'); path.setAttribute('stroke','#60a5fa'); path.setAttribute('stroke-width','1.6'); path.setAttribute('marker-end','url(#arrowhead)'); layer.appendChild(path); const label=document.createElementNS('http://www.w3.org/2000/svg','text'); label.setAttribute('x', (fromNode.x+toNode.x)/2 - 20); label.setAttribute('y', y-4); label.setAttribute('fill','#e5e7eb'); label.setAttribute('font-size','10'); label.textContent=tr.act; layer.appendChild(label); });
-    // defs for arrowhead
-    const defs=document.createElementNS('http://www.w3.org/2000/svg','defs'); const marker=document.createElementNS('http://www.w3.org/2000/svg','marker'); marker.setAttribute('id','arrowhead'); marker.setAttribute('markerWidth','8'); marker.setAttribute('markerHeight','6'); marker.setAttribute('refX','7'); marker.setAttribute('refY','3'); marker.setAttribute('orient','auto'); const path=document.createElementNS('http://www.w3.org/2000/svg','path'); path.setAttribute('d','M0,0 L8,3 L0,6 Z'); path.setAttribute('fill','#e5e7eb'); marker.appendChild(path); defs.appendChild(marker); layer.appendChild(defs);
-    document.getElementById('btnExportLcSvg').onclick = ()=>{ const svgEl=document.getElementById('lcSvg'); const data=new XMLSerializer().serializeToString(svgEl); const blob=new Blob([data],{type:'image/svg+xml'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`lifecycle-${art.name.replace(/\s+/g,'_')}.svg`; a.click(); };
-  }
+  // ===== Lifecycle view =====
+  function openLifecycle(artifactId){
+  const art=findArtifact(artifactId); if(!art) return;
+  const dlg=document.getElementById('lcDlg');
+  document.getElementById('lcTitle').textContent = 'Lifecycle — '+art.name;
+  dlg.showModal();
+  const layer=document.getElementById('lcLayer'); while(layer.firstChild) layer.removeChild(layer.firstChild);
 
-  window.openLifecycle = openLifecycle;
+  // init persisted layout/routes
+  if(!state.lcLayouts[art.id]) state.lcLayouts[art.id]={ nodes:{}, start:{x:40,y:220} };
+  if(!state.lcRoutes[art.id])  state.lcRoutes[art.id]={};
+  const layout=state.lcLayouts[art.id];
+  const routes=state.lcRoutes[art.id];
 
-  // ==== Drag logic with reparent ====
-  let dragCtx=null; function startDrag(ev, node){ ev.preventDefault(); ev.stopPropagation(); const a=node.act; state.selectedId=a.id; render(); const start={mx:ev.clientX, my:ev.clientY}; const off = state.offsets[a.id] || {dx:0,dy:0}; dragCtx={ node, start, offStart:{dx:off.dx||0, dy:off.dy||0} }; document.body.style.cursor='grabbing'; window.addEventListener('mousemove', onDragMove); window.addEventListener('mouseup', endDrag); }
-  function onDragMove(ev){ if(!dragCtx) return; const dx=(ev.clientX - dragCtx.start.mx)/state.zoom; const dy=(ev.clientY - dragCtx.start.my)/state.zoom; const a=dragCtx.node.act; const off=state.offsets[a.id] || {dx:0,dy:0}; off.dx = (dragCtx.offStart.dx||0) + dx; off.dy = (dragCtx.offStart.dy||0) + dy; state.offsets[a.id] = off; render(); }
-  function endDrag(){ if(!dragCtx){ return; } const node = dragCtx.node; const a = node.act; const tree = layout(); function findNodeById(n,id){ if(n.act.id===id) return n; for(const c of n.children){ const r=findNodeById(c,id); if(r) return r; } return null; } let curN=null; for(const r of tree.roots){ const hit=findNodeById(r,a.id); if(hit){ curN=hit; break; } } if(curN){ const cx = curN.x + (curN.w)/2; const cy = curN.y + (curN.h)/2; function isDescendant(rootId, targetId){ const child = state.activities.find(x=> x.id===targetId); let p=child?.parentId||null; while(p){ if(p===rootId) return true; p = state.activities.find(x=> x.id===p)?.parentId || null; } return false; } let candidate=null; function scan(n){ if(n.act.id!==a.id && !isDescendant(a.id, n.act.id)){ const innerLeft = n.x + IO_SPACE; const innerRight = n.x + n.w - IO_SPACE; const innerTop = n.y; const innerBottom = n.y + n.h; if(cx>innerLeft && cx<innerRight && cy>innerTop+HEADER_H && cy<innerBottom){ candidate = n; } } n.children.forEach(scan); } tree.roots.forEach(scan); if(candidate){ const newParentId = candidate.act.id; if(a.parentId !== newParentId){ a.parentId = newParentId; const parent=findActivity(newParentId); if(parent) parent.isMaster=true; state.offsets[a.id] = {dx:0,dy:0}; } } } dragCtx=null; document.body.style.cursor='default'; window.removeEventListener('mousemove', onDragMove); window.removeEventListener('mouseup', endDrag); render(); }
+  // nodes
+  const states=[...art.states];
+  const nodes=states.map((s,i)=>({
+    s,
+    x:(layout.nodes[s]&&layout.nodes[s].x)!==undefined?layout.nodes[s].x:(60+i*120),
+    y:(layout.nodes[s]&&layout.nodes[s].y)!==undefined?layout.nodes[s].y:100,
+    achieved:isAchieved(art.id,s)
+  }));
+  const startNode={ s:'START', x: layout.start.x, y: layout.start.y };
 
-  // ==== Zoom/pan ====
-  (function(){ const svg=document.getElementById('svg'); let panCtx=null; svg.addEventListener('wheel', (ev)=>{ ev.preventDefault(); const delta = Math.sign(ev.deltaY); const factor = (delta>0)? 0.9 : 1.1; const oldZoom=state.zoom; state.zoom = Math.max(0.3, Math.min(3.0, state.zoom*factor)); const rect = svg.getBoundingClientRect(); const cx = (ev.clientX - rect.left - state.pan.x) / oldZoom; const cy = (ev.clientY - rect.top - state.pan.y) / oldZoom; state.pan.x = ev.clientX - rect.left - cx*state.zoom; state.pan.y = ev.clientY - rect.top - cy*state.zoom; render(); }); svg.addEventListener('mousedown', (ev)=>{ if(ev.target.id==='zoomLayer' || ev.target.id==='svg'){ panCtx={mx:ev.clientX,my:ev.clientY, panStart:{x:state.pan.x,y:state.pan.y} }; svg.style.cursor='grabbing'; } }); window.addEventListener('mousemove', (ev)=>{ if(!panCtx) return; const dx=ev.clientX - panCtx.mx; const dy=ev.clientY - panCtx.my; state.pan.x = panCtx.panStart.x + dx; state.pan.y = panCtx.panStart.y + dy; render(); }); window.addEventListener('mouseup', ()=>{ panCtx=null; svg.style.cursor='grab'; }); })();
-
-  // ==== Toolbar wiring ====
-  document.addEventListener('DOMContentLoaded', ()=>{
-    const master=addActivity('Master Process', null); master.isMaster=true; state.selectedId=master.id; render();
-    document.getElementById('btnNew').onclick=()=>{ state.activities=[]; state.artifacts=[]; state.offsets={}; state.achieved={}; state.selectedId=null; state.zoom=1; state.pan={x:0,y:0}; const m=addActivity('Master Process', null); m.isMaster=true; state.selectedId=m.id; render(); };
-    document.getElementById('btnSave').onclick=()=>{ const json=JSON.stringify({activities:state.activities, artifacts:state.artifacts.map(a=>({id:a.id,name:a.name,states:Array.from(a.states)})), offsets:state.offsets, achieved:Object.fromEntries(Object.entries(state.achieved).map(([k,v])=>[k,Array.from(v)]))}, null, 2); const blob=new Blob([json],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='prove-alt-nested-editable-v3-6.json'; a.click(); };
-    document.getElementById('btnLoad').onclick=()=> document.getElementById('fileInput').click();
-    document.getElementById('fileInput').onchange=async (e)=>{ const f=e.target.files[0]; if(!f) return; const tx=await f.text(); const j=JSON.parse(tx); state.activities=j.activities||[]; state.artifacts=(j.artifacts||[]).map(x=>({id:x.id,name:x.name,states:new Set(x.states||[])})); state.offsets=j.offsets||{}; state.achieved={}; if(j.achieved){ Object.entries(j.achieved).forEach(([k,arr])=>{ state.achieved[k]=new Set(arr||[]); }); } render(); };
-    document.getElementById('btnExportSVG').onclick=()=>{ const svgEl=document.getElementById('svg'); const data=new XMLSerializer().serializeToString(svgEl); const blob=new Blob([data],{type:'image/svg+xml'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='diagram.svg'; a.click(); };
-
-    document.getElementById('btnAddActivity').onclick=()=>{ const actOpts=state.activities.map(a=>`<option value=\"${a.id}\" ${state.selectedId===a.id?'selected':''}>${a.name}</option>`).join(''); const defaultParent = state.selectedId ? ' (default: selected)' : ''; openDialog('Add Activity', `<label>Name</label><input id=\"actName\"/><label>Parent${defaultParent}</label><select id=\"actParent\"><option value=\"\">(none)</option>${actOpts}</select>`, ()=>{ const name=(document.getElementById('actName').value||'Activity').trim(); const pidRaw=document.getElementById('actParent').value; const pid = pidRaw || state.selectedId || null; const act=addActivity(name, pid||null); const parent = pid? findActivity(pid): null; if(parent) parent.isMaster=true; state.selectedId=act.id; render(); }); };
-
-    document.getElementById('btnAddArtifact').onclick=()=> openDialog('Add Artifact', `<label>Name</label><input id=\"artName\"/>`, ()=>{ const name=(document.getElementById('artName').value||'Artifact').trim(); addArtifact(name); render(); });
-
-    document.getElementById('btnAddState').onclick=()=>{ const artOpts=state.artifacts.map(a=>`<option value=\"${a.id}\">${a.name}</option>`).join(''); openDialog('Add Elemental State', `<label>Artifact</label><select id=\"artSel\">${artOpts}</select><label>State</label><input id=\"stateVal\"/>`, ()=>{ const artId=document.getElementById('artSel').value; const s=(document.getElementById('stateVal').value||'Defined').trim(); const art=findArtifact(artId); if(art){ art.states.add(s); render(); } }); };
-
-    document.getElementById('btnLinkIn').onclick=()=> linkIO('in');
-    document.getElementById('btnLinkOut').onclick=()=> linkIO('out');
-
-    document.getElementById('btnGating').onclick=()=>{ const actOpts=state.activities.map(a=>`<option value=\"${a.id}\" ${state.selectedId===a.id?'selected':''}>${a.name}</option>`).join(''); const artOpts=state.artifacts.map(a=>`<option value=\"${a.id}\">${a.name}</option>`).join(''); openDialog('Insert Gating', `<label>Parent Activity</label><select id=\"parentSel\"><option value=\"\">(none)</option>${actOpts}</select><label>Artifact</label><select id=\"artSel\">${artOpts}</select><label>Ready state</label><input id=\"ready\" value=\"Ready\"/><label>Approved state</label><input id=\"approved\" value=\"Approved\"/>`, ()=>{ const pid=document.getElementById('parentSel').value || state.selectedId || null; const artId=document.getElementById('artSel').value; const r=(document.getElementById('ready').value||'Ready').trim(); const a=(document.getElementById('approved').value||'Approved').trim(); const dev=addActivity('Development',pid); const insp=addActivity('Inspection',pid); const art=findArtifact(artId); dev.outputs.push({artifactId:art.id,state:r}); insp.inputs.push({artifactId:art.id,state:r}); insp.outputs.push({artifactId:art.id,state:a}); dev.inputs.push({artifactId:art.id,state:a}); const parent=findActivity(pid); if(parent) parent.isMaster=true; render(); }); };
-
-    document.getElementById('btnCheck').onclick=()=>{ const issues=checkConsistency(); openDialog('Consistency Report', `<pre style=\"white-space:pre-wrap\">${issues.length?issues.join('\\n'):'No issues found.'}</pre>`, ()=>{}); };
-
-    document.getElementById('btnLifecycle').onclick=()=>{ // open lifecycle for selected artifact if any
-      const a=state.selectedId? findActivity(state.selectedId): null; if(!a){ openDialog('Artifact Lifecycle', '<div class=\"meta\">Select an activity, then choose an artifact from its IO list.</div>', ()=>{}); return; }
-      // choose artifact from activity IO
-      const ioArts = Array.from(new Set([ ...a.inputs.map(i=>i.artifactId), ...a.outputs.map(o=>o.artifactId) ])); if(ioArts.length===0){ openDialog('Artifact Lifecycle', '<div class=\"meta\">Selected activity has no artifacts in its IO.</div>', ()=>{}); return; }
-      const opts = ioArts.map(id=>{ const art=findArtifact(id); return `<option value=\"${id}\">${art.name}</option>`; }).join(''); openDialog('Open Lifecycle', `<label>Artifact</label><select id=\"lcSel\">${opts}</select>`, ()=>{ const artId=document.getElementById('lcSel').value; openLifecycle(artId); });
-    };
-
-    document.getElementById('statusMode').addEventListener('change', ()=> render());
+  // transitions (raw)
+  const raw=[];
+  state.activities.forEach(a=>{
+    const ins=a.inputs.filter(i=> i.artifactId===art.id).map(i=> i.state);
+    const outs=a.outputs.filter(o=> o.artifactId===art.id).map(o=> o.state);
+    if(outs.length && ins.length){ ins.forEach(si=> outs.forEach(so=> raw.push({from:si,to:so, act:a.name}))); }
+    else if(outs.length && ins.length===0){ outs.forEach(so=> raw.push({from:'START', to:so, act:a.name})); }
   });
 
-  // Link IO (preselect selected activity + add new artifact + states)
-  function linkIO(direction){ const actOpts=state.activities.map(a=>`<option value=\"${a.id}\" ${state.selectedId===a.id?'selected':''}>${a.name}</option>`).join(''); const artOpts=state.artifacts.map(a=>`<option value=\"${a.id}\">${a.name}</option>`).join(''); openDialog(`Link ${direction==='in'?'Input':'Output'}`, `<label>Activity</label><select id=\"actSel\">${actOpts}</select><label>Artifact</label><select id=\"artSel\">${artOpts}</select><label>Or new artifact</label><input id=\"artNew\" placeholder=\"e.g., Test Report\"/><label>Existing state</label><select id=\"stateSel\"><option value=\"\">(none)</option></select><label>Or add new state</label><input id=\"stateNew\" placeholder=\"e.g., Verified\"/>`, ()=>{ const actId=(document.getElementById('actSel').value||state.selectedId); let artId=document.getElementById('artSel').value; const artNew=(document.getElementById('artNew').value||'').trim(); const selected=document.getElementById('stateSel').value; const newState=(document.getElementById('stateNew').value||'').trim(); const act=findActivity(actId);
-      let art = null; if(artNew){ art = addArtifact(artNew); } else { art = findArtifact(artId); }
-      if(!act || !art) return; const s = newState || selected || 'Defined'; if(newState) art.states.add(newState); const io={artifactId:art.id,state:s}; if(direction==='in') act.inputs.push(io); else act.outputs.push(io); const parent=act.parentId?findActivity(act.parentId):null; if(parent) parent.isMaster=true; // status: optionally mark achieved if output
-      if(direction==='out') markAchieved(art.id, s);
-      render(); }); setTimeout(()=>{ const artSel=document.getElementById('artSel'); const stateSel=document.getElementById('stateSel'); function refreshStates(){ const art=findArtifact(artSel.value); stateSel.innerHTML='<option value="">(none)</option>'+(art? Array.from(art.states).map(s=>`<option value="${s}">${s}</option>`).join('') : ''); } artSel.addEventListener('change', refreshStates); refreshStates(); },0); }
+  // aggregate by from->to : collect all activities
+  const grouped=new Map(); // key: from||to -> Set(acts)
+  raw.forEach(tr=>{ const k=tr.from+'||'+tr.to; if(!grouped.has(k)) grouped.set(k,new Set()); grouped.get(k).add(tr.act); });
+
+  // draw nodes (draggable)
+  function drawNode(n){
+    const color = isAchieved(art.id, n.s) ? '#34d399' : '#60a5fa';
+    const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx', n.x); circle.setAttribute('cy', n.y); circle.setAttribute('r', 16);
+    circle.setAttribute('fill', 'transparent'); circle.setAttribute('stroke', color); circle.setAttribute('stroke-width', 2);
+    circle.style.cursor='grab';
+    let moving=false; const onMove=(ev)=>{ if(!moving) return; const svg=document.getElementById('lcSvg'); const rect=svg.getBoundingClientRect(); n.x=ev.clientX-rect.left; n.y=ev.clientY-rect.top; layout.nodes[n.s]={x:n.x,y:n.y}; openLifecycle(artifactId); };
+    circle.addEventListener('mousedown',(ev)=>{ ev.stopPropagation(); moving=true; window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', ()=>{ moving=false; window.removeEventListener('mousemove', onMove); }, {once:true}); });
+    layer.appendChild(circle);
+    const label=document.createElementNS('http://www.w3.org/2000/svg','text'); label.setAttribute('x', n.x-20); label.setAttribute('y', n.y+34); label.setAttribute('fill','#e5e7eb'); label.setAttribute('font-size','11'); label.textContent=n.s; layer.appendChild(label);
+  }
+  nodes.forEach(drawNode);
+
+  // START block if needed (draggable)
+  if([...grouped.keys()].some(k=> k.startsWith('START||'))){
+    const start=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    start.setAttribute('x', startNode.x-28); start.setAttribute('y', startNode.y-14);
+    start.setAttribute('width', 56); start.setAttribute('height', 28); start.setAttribute('rx', 6);
+    start.setAttribute('fill','#1f2937'); start.setAttribute('stroke','#9ca3af'); start.style.cursor='grab';
+    let movingS=false; const onMoveS=(ev)=>{ if(!movingS) return; const svg=document.getElementById('lcSvg'); const rect=svg.getBoundingClientRect(); startNode.x=ev.clientX-rect.left; startNode.y=ev.clientY-rect.top; layout.start={x:startNode.x,y:startNode.y}; openLifecycle(artifactId); };
+    start.addEventListener('mousedown',(ev)=>{ ev.stopPropagation(); movingS=true; window.addEventListener('mousemove', onMoveS); window.addEventListener('mouseup', ()=>{ movingS=false; window.removeEventListener('mousemove', onMoveS); }, {once:true}); });
+    layer.appendChild(start);
+    const stlabel=document.createElementNS('http://www.w3.org/2000/svg','text'); stlabel.setAttribute('x', startNode.x-18); stlabel.setAttribute('y', startNode.y+4); stlabel.setAttribute('fill','#e5e7eb'); stlabel.setAttribute('font-size','11'); stlabel.textContent='START'; layer.appendChild(stlabel);
+  }
+
+  function mid(a,b){ return {x:(a.x+b.x)/2, y:Math.min(a.y,b.y)-44}; }
+
+  // draw aggregated edges with bendpoints
+  grouped.forEach((acts, key)=>{
+    const [fromS,toS]=key.split('||');
+    const fromNode = fromS==='START'? startNode : nodes.find(n=> n.s===fromS);
+    const toNode   = nodes.find(n=> n.s===toS);
+    if(!fromNode || !toNode) return;
+    const from={x:fromNode.x,y:fromNode.y}; const to={x:toNode.x,y:toNode.y};
+    const eKey = fromS+'->'+toS; // lifecycle edge key per artifact
+    const bends = routes[eKey] || [];
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    if(bends.length===0){ const y = Math.min(from.y, to.y) - 40; const d = 'M '+from.x+','+from.y+' C '+from.x+','+y+' '+to.x+','+y+' '+to.x+','+to.y; path.setAttribute('d', d); }
+    else { const pts=[from].concat(bends).concat([to]); let d='M '+pts[0].x+','+pts[0].y; for(let i=1;i<pts.length;i++){ d+=' L '+pts[i].x+','+pts[i].y; } path.setAttribute('d', d); }
+    path.setAttribute('fill','none'); path.setAttribute('stroke','#60a5fa'); path.setAttribute('stroke-width','1.6'); path.setAttribute('marker-end','url(#lcArrow)');
+    path.style.cursor='pointer';
+    path.addEventListener('click', (ev)=>{
+      const svg=document.getElementById('lcSvg'); const rect=svg.getBoundingClientRect(); const px=ev.clientX-rect.left, py=ev.clientY-rect.top;
+      if(!routes[eKey]) routes[eKey]=[]; routes[eKey].push({x:px,y:py}); openLifecycle(artifactId);
+    });
+    layer.appendChild(path);
+
+    // label with all activities
+    const m = mid(from,to); const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+    lbl.setAttribute('x', m.x-20); lbl.setAttribute('y', m.y); lbl.setAttribute('fill','#e5e7eb'); lbl.setAttribute('font-size','10'); lbl.textContent=[...acts].sort().join(', ');
+    layer.appendChild(lbl);
+
+    // bendpoint handles
+    (routes[eKey]||[]).forEach((p)=>{
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', 5); c.setAttribute('fill', '#f59e0b'); c.setAttribute('stroke','#111'); c.style.cursor='grab';
+      let moving=false; const onMove=(ev)=>{ if(!moving) return; const svg=document.getElementById('lcSvg'); const rect=svg.getBoundingClientRect(); p.x=ev.clientX-rect.left; p.y=ev.clientY-rect.top; openLifecycle(artifactId); };
+      c.addEventListener('mousedown',(ev)=>{ ev.stopPropagation(); moving=true; window.addEventListener('mousemove', onMove); window.addEventListener('mouseup', ()=>{ moving=false; window.removeEventListener('mousemove', onMove); }, {once:true}); });
+      layer.appendChild(c);
+    });
+  });
+
+  document.getElementById('btnExportLcSvg').onclick = ()=>{
+    const svgEl=document.getElementById('lcSvg'); const data=new XMLSerializer().serializeToString(svgEl);
+    const blob=new Blob([data],{type:'image/svg+xml'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download='lifecycle-'+art.name.replace(/\s+/g,'_')+'.svg'; a.click();
+  };
+}
+window.openLifecycle = openLifecycle = openLifecycle;
+
+  // ===== IO edit helpers & UI wrappers =====
+  function editIO(activityId,kind,index,newState){ const a=findActivity(activityId); if(!a) return; const arr=(kind==='in')?a.inputs:a.outputs; if(arr[index]){ arr[index].state=(newState||arr[index].state).trim(); const art=findArtifact(arr[index].artifactId); if(art) art.states.add(arr[index].state); render(); } }
+  function deleteIO(activityId,kind,index){ const a=findActivity(activityId); if(!a) return; const arr=(kind==='in')?a.inputs:a.outputs; arr.splice(index,1); render(); }
+  function uiEditIO(actId,kind,idx){ const a=findActivity(actId); if(!a) return; const item=(kind==='in'? a.inputs[idx]: a.outputs[idx]); const art=findArtifact(item.artifactId); openDialog('Edit IO', `<div>Artifact: <strong>${art.name}</strong></div><label>State</label><input id=\"st\" value=\"${item.state}\"/>`, ()=>{ const s=(document.getElementById('st').value||item.state).trim(); editIO(actId,kind,idx,s); }); }
+  function uiDeleteIO(actId,kind,idx){ openDialog('Delete IO Link', `<p>Remove this ${kind==='in'?'input':'output'} link?</p>`, ()=> deleteIO(actId,kind,idx)); }
+  function uiQuickAddIO(actId,kind){ const artOpts=state.artifacts.map(a=>`<option value=\"${a.id}\">${a.name}</option>`).join(''); openDialog(`Add ${kind==='in'?'Input':'Output'}`, `<label>Artifact</label><select id=\"artSel\">${artOpts}</select><label>Or new artifact</label><input id=\"artNew\" placeholder=\"e.g., Test Report\"/><label>Existing state</label><select id=\"stateSel\"><option value=\"\">(none)</option></select><label>Or add new state</label><input id=\"stNew\" placeholder=\"e.g., Verified\"/>`, ()=>{ const artNew=(document.getElementById('artNew').value||'').trim(); const artId= artNew? addArtifact(artNew).id : document.getElementById('artSel').value; const art=findArtifact(artId); const existing=document.getElementById('stateSel').value; const newS=(document.getElementById('stNew').value||'').trim(); const s = newS || existing || 'Defined'; const a=findActivity(actId); if(!a||!art) return; art.states.add(s); const io={artifactId:art.id,state:s}; if(kind==='in') a.inputs.push(io); else { a.outputs.push(io); markAchieved(art.id,s); } render(); }); setTimeout(()=>{ const artSel=document.getElementById('artSel'); const stSel=document.getElementById('stateSel'); function refresh(){ const art=findArtifact(artSel.value); stSel.innerHTML='<option value="">(none)</option>' + (art? [...art.states].map(s=>`<option value="${s}">${s}</option>`).join('') : ''); } artSel.addEventListener('change', refresh); refresh(); },0); }
+
+  function uiRenameArtifact(id){ const a=findArtifact(id); if(!a) return; openDialog('Rename Artifact', `<label>New name</label><input id=\"name\" value=\"${a.name}\"/>`, ()=>{ const n=(document.getElementById('name').value||a.name).trim(); a.name=n; render(); }); }
+  function uiDeleteArtifact(id){ openDialog('Delete Artifact', `<p>Delete this artifact and remove all references from activities?</p>`, ()=>{ state.activities.forEach(act=>{ act.inputs=act.inputs.filter(i=>i.artifactId!==id); act.outputs=act.outputs.filter(o=>o.artifactId!==id); }); state.artifacts=state.artifacts.filter(a=>a.id!==id); delete state.achieved[id]; render(); }); }
+  function uiAddArtifactState(id){ openDialog('Add State', `<label>State</label><input id=\"st\"/>`, ()=>{ const s=(document.getElementById('st').value||'Defined').trim(); const a=findArtifact(id); if(a){ a.states.add(s); render(); } }); }
+  function uiRemoveArtifactState(id){ const a=findArtifact(id); if(!a) return; const opts=[...a.states].map(s=>`<option>${s}</option>`).join(''); openDialog('Remove State', `<label>Choose state</label><select id=\"st\">${opts}</select>`, ()=>{ const s=document.getElementById('st').value; a.states.delete(s); unmarkAchieved(id,s); render(); }); }
+  function uiRenameActivity(id){ const a=findActivity(id); if(!a) return; openDialog('Rename Activity', `<label>New name</label><input id=\"name\" value=\"${a.name}\"/>`, ()=>{ const n=(document.getElementById('name').value||a.name).trim(); a.name=n; render(); }); }
+  function uiChangeParent(id){ const a=findActivity(id); if(!a) return; const opts=state.activities.filter(x=>x.id!==id).map(x=>`<option value=\"${x.id}\" ${a.parentId===x.id?'selected':''}>${x.name}</option>`).join(''); openDialog('Change Parent', `<label>Parent</label><select id=\"pid\"><option value=\"\">(none)</option>${opts}</select>`, ()=>{ const pid=document.getElementById('pid').value||null; function isDescendant(testId, ofId){ if(!testId) return false; let cur=findActivity(testId); while(cur){ if(cur.parentId===ofId) return true; cur=cur.parentId?findActivity(cur.parentId):null; } return false; } if(pid && (pid===id || isDescendant(pid,id))){ openDialog('Invalid Parent', '<p>Cannot set parent to itself or its descendant. This would create a cycle.</p>', ()=>{}); return; } a.parentId=pid||null; const parent=pid?findActivity(pid):null; if(parent) parent.isMaster=true; state.offsets[id]={dx:0,dy:0}; render(); }); }
+  function uiDeleteActivity(id){ openDialog('Delete Activity', `<p>Delete this activity and all its children?</p>`, ()=>{ const children=state.activities.filter(x=>x.parentId===id); children.forEach(ch=> uiDeleteActivity(ch.id)); state.activities=state.activities.filter(a=>a.id!==id); delete state.offsets[id]; if(state.selectedId===id) state.selectedId=null; render(); }); }
+
+  window.uiEditIO=uiEditIO; window.uiDeleteIO=uiDeleteIO; window.uiQuickAddIO=uiQuickAddIO;
+  window.uiRenameArtifact=uiRenameArtifact; window.uiDeleteArtifact=uiDeleteArtifact; window.uiAddArtifactState=uiAddArtifactState; window.uiRemoveArtifactState=uiRemoveArtifactState;
+  window.uiRenameActivity=uiRenameActivity; window.uiChangeParent=uiChangeParent; window.uiDeleteActivity=uiDeleteActivity;
+
+  // ===== Misc controls =====
+  document.getElementById('btnResetRoutes').onclick=()=>{ state.routes={}; state.selectedEdge=null; render(); };
+
+  // ===== Dragging & Zoom =====
+  let dragCtx=null; function startDrag(ev, node){ ev.preventDefault(); ev.stopPropagation(); const a=node.act; state.selectedId=a.id; render(); const start={mx:ev.clientX,my:ev.clientY}; const off=state.offsets[a.id]||{dx:0,dy:0}; dragCtx={ node, start, offStart:{dx:off.dx||0,dy:off.dy||0} }; document.body.style.cursor='grabbing'; window.addEventListener('mousemove', onDragMove); window.addEventListener('mouseup', endDrag); }
+  function onDragMove(ev){ if(!dragCtx) return; const dx=(ev.clientX-dragCtx.start.mx)/state.zoom; const dy=(ev.clientY-dragCtx.start.my)/state.zoom; const a=dragCtx.node.act; const off=state.offsets[a.id]||{dx:0,dy:0}; off.dx=(dragCtx.offStart.dx||0)+dx; off.dy=(dragCtx.offStart.dy||0)+dy; state.offsets[a.id]=off; render(); }
+  function endDrag(){ dragCtx=null; document.body.style.cursor='default'; window.removeEventListener('mousemove', onDragMove); window.removeEventListener('mouseup', endDrag); }
+
+  (function(){ const svg=document.getElementById('svg'); let panCtx=null; svg.addEventListener('wheel',(ev)=>{ ev.preventDefault(); const delta=Math.sign(ev.deltaY); const factor=(delta>0)?0.9:1.1; const old=state.zoom; state.zoom=Math.max(0.3, Math.min(3.0, state.zoom*factor)); const rect=svg.getBoundingClientRect(); const cx=(ev.clientX-rect.left-state.pan.x)/old; const cy=(ev.clientY-rect.top-state.pan.y)/old; state.pan.x = ev.clientX-rect.left - cx*state.zoom; state.pan.y = ev.clientY-rect.top - cy*state.zoom; render(); }); svg.addEventListener('mousedown',(ev)=>{ if(ev.target.id==='zoomLayer' || ev.target.id==='svg'){ panCtx={mx:ev.clientX,my:ev.clientY,start:{x:state.pan.x,y:state.pan.y}}; svg.style.cursor='grabbing'; } }); window.addEventListener('mousemove',(ev)=>{ if(!panCtx) return; state.pan.x=panCtx.start.x+(ev.clientX-panCtx.mx); state.pan.y=panCtx.start.y+(ev.clientY-panCtx.my); render(); }); window.addEventListener('mouseup',()=>{ panCtx=null; svg.style.cursor='grab'; }); })();
+
+  // ===== Startup wiring =====
+  
+  // ===== Status & Lifecycle Panel =====
+  function renderStatusPanel(){
+  const artSel=document.getElementById('statusArtifact');
+  const statesDiv=document.getElementById('statusStates');
+  if(!artSel||!statesDiv) return;
+  const prev=artSel.value||'';
+  const opts=state.artifacts.map(a=>`<option value="${a.id}">${a.name}</option>`).join('');
+  artSel.innerHTML=opts;
+  if(prev && state.artifacts.some(a=>a.id===prev)) artSel.value=prev;
+  if(!artSel.value && state.artifacts.length) artSel.value=state.artifacts[0].id;
+  const art=findArtifact(artSel.value);
+  if(!art){ statesDiv.innerHTML='<div class="meta">No artifacts yet.</div>'; return; }
+  const ach=state.achieved[art.id]||new Set();
+  const rows=[...art.states].map(st=>{ const checked=ach.has(st)?'checked':''; return `<label style="display:flex;gap:.35rem;align-items:center;margin:.2rem 0"><input type="checkbox" data-st="${st}" ${checked}/> <span>${st}</span></label>`; }).join('');
+  statesDiv.innerHTML=`<div class="meta">Set achieved states for <strong>${art.name}</strong>:</div>` + (rows||'<div class="meta">(no states defined)</div>');
+  statesDiv.querySelectorAll('input[type=checkbox]').forEach(cb=>{ cb.onchange=(e)=>{ const st=e.target.getAttribute('data-st'); if(e.target.checked){ markAchieved(art.id, st);} else { unmarkAchieved(art.id, st);} render(); }; });
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+    const m=addActivity('Master Process', null); m.isMaster=true; state.selectedId=m.id; render();
+    document.getElementById('btnNew').onclick=()=>{ state.activities=[]; state.artifacts=[]; state.offsets={}; state.achieved={}; state.routes={}; state.selectedId=null; state.selectedEdge=null; state.zoom=1; state.pan={x:0,y:0}; const mm=addActivity('Master Process', null); mm.isMaster=true; state.selectedId=mm.id; render(); };
+    document.getElementById('btnSave').onclick=()=>{ const json=JSON.stringify({activities:state.activities, artifacts:state.artifacts.map(a=>({id:a.id,name:a.name,states:[...a.states]})), offsets:state.offsets, achieved:Object.fromEntries(Object.entries(state.achieved).map(([k,v])=>[k,[...v]])), routes:state.routes, lcLayouts:state.lcLayouts, lcRoutes:state.lcRoutes}, null, 2); const blob=new Blob([json],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='prove-alt-nested-editable-v3-16.json'; a.click(); };
+    document.getElementById('btnLoad').onclick=()=> document.getElementById('fileInput').click();
+    document.getElementById('fileInput').onchange=async (e)=>{ const f=e.target.files[0]; if(!f) return; const tx=await f.text(); const j=JSON.parse(tx); state.activities=j.activities||[]; state.artifacts=(j.artifacts||[]).map(x=>({id:x.id,name:x.name,states:new Set(x.states||[])})); state.offsets=j.offsets||{}; state.achieved={}; if(j.achieved){ Object.entries(j.achieved).forEach(([k,arr])=> state.achieved[k]=new Set(arr||[])); } state.routes=j.routes||{}; state.lcLayouts=j.lcLayouts||{}; state.lcRoutes=j.lcRoutes||{}; state.selectedId= state.activities.length? state.activities[0].id : null; render(); };
+    document.getElementById('btnExportSVG').onclick=()=>{ const svgEl=document.getElementById('svg'); const data=new XMLSerializer().serializeToString(svgEl); const blob=new Blob([data],{type:'image/svg+xml'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='diagram.svg'; a.click(); };
+    document.getElementById('btnAddActivity').onclick=()=>{ const actOpts=state.activities.map(a=>`<option value=\"${a.id}\" ${state.selectedId===a.id?'selected':''}>${a.name}</option>`).join(''); const defaultParent= state.selectedId ? ' (default: selected)' : ''; openDialog('Add Activity', `<label>Name</label><input id=\"actName\"/><label>Parent${defaultParent}</label><select id=\"actParent\"><option value=\"\">(none)</option>${actOpts}</select>`, ()=>{ const name=(document.getElementById('actName').value||'Activity').trim(); const pidRaw=document.getElementById('actParent').value; const pid=pidRaw || state.selectedId || null; const act=addActivity(name,pid||null); const parent=pid?findActivity(pid):null; if(parent) parent.isMaster=true; state.selectedId=act.id; render(); }); };
+    document.getElementById('btnAddArtifact').onclick=()=> openDialog('Add Artifact', `<label>Name</label><input id=\"artName\"/>`, ()=>{ const name=(document.getElementById('artName').value||'Artifact').trim(); addArtifact(name); render(); try{ if(document.getElementById('statusArtifact')) renderStatusPanel(); }catch(e){} });
+    document.getElementById('btnAddState').onclick=()=>{ const artOpts=state.artifacts.map(a=>`<option value=\"${a.id}\">${a.name}</option>`).join(''); openDialog('Add Elemental State', `<label>Artifact</label><select id=\"artSel\">${artOpts}</select><label>State</label><input id=\"stateVal\"/>`, ()=>{ const artId=document.getElementById('artSel').value; const s=(document.getElementById('stateVal').value||'Defined').trim(); const art=findArtifact(artId); if(art){ art.states.add(s); render(); } }); };
+    document.getElementById('btnLinkIn').onclick=()=> linkIO('in');
+    document.getElementById('btnLinkOut').onclick=()=> linkIO('out');
+    document.getElementById('btnLifecycle').onclick=()=>{ const a=state.selectedId? findActivity(state.selectedId): null; if(!a){ openDialog('Artifact Lifecycle', '<div class=\"meta\">Select an activity, then choose an artifact from its IO list or open from the Artifacts panel.</div>', ()=>{}); return; } const ioArts=[...new Set([...a.inputs.map(i=>i.artifactId), ...a.outputs.map(o=>o.artifactId)])]; if(ioArts.length===0){ openDialog('Artifact Lifecycle', '<div class=\"meta\">Selected activity has no artifacts in its IO.</div>', ()=>{}); return; } const opts=ioArts.map(id=>`<option value=\"${id}\">${findArtifact(id).name}</option>`).join(''); openDialog('Open Lifecycle', `<label>Artifact</label><select id=\"lcSel\">${opts}</select>`, ()=>{ const artId=document.getElementById('lcSel').value; openLifecycle(artId); }); };
+    document.getElementById('btnRunReport').onclick=()=>{ const mode=document.getElementById('reportMode').value; renderConsistencyReport(mode); };
+    document.getElementById('btnCheck').onclick=()=>{ const mode=document.getElementById('reportMode').value; renderConsistencyReport(mode); };
+    document.getElementById('statusMode').addEventListener('change', ()=> render());
+    document.getElementById('editConnectors').addEventListener('change', ()=>{ if(!document.getElementById('editConnectors').checked){ state.selectedEdge=null; document.getElementById('edgeProps').textContent='Select a connector while "Edit Connectors" is ON to edit bendpoints.'; } render(); });
+    // Status panel wiring (deduped) if(btnClr){ btnClr.onclick = ()=>{ const aid=document.getElementById('statusArtifact').value; state.achieved[aid]=new Set(); render(); renderStatusPanel(); }; }
+
+  
+    // Status panel wiring (fixed insertion inside DOMContentLoaded)
+    if(document.getElementById('statusArtifact')){
+      renderStatusPanel();
+      document.getElementById('statusArtifact').addEventListener('change', ()=> renderStatusPanel());
+    }
+    const btnLC=document.getElementById('btnOpenLifecycle'); if(btnLC){ btnLC.onclick = ()=>{ const aid=document.getElementById('statusArtifact').value; openLifecycle(aid); }; }
+    const btnClr=document.getElementById('btnClearAch'); if(btnClr){ btnClr.onclick = ()=>{ const aid=document.getElementById('statusArtifact').value; state.achieved[aid]=new Set(); render(); renderStatusPanel(); }; }
+});
+
+  // ===== Link IO =====
+  function linkIO(direction){ const actOpts=state.activities.map(a=>`<option value=\"${a.id}\" ${state.selectedId===a.id?'selected':''}>${a.name}</option>`).join(''); const artOpts=state.artifacts.map(a=>`<option value=\"${a.id}\">${a.name}</option>`).join(''); openDialog(`Link ${direction==='in'?'Input':'Output'}`, `<label>Activity</label><select id=\"actSel\">${actOpts}</select><label>Artifact</label><select id=\"artSel\">${artOpts}</select><label>Or new artifact</label><input id=\"artNew\" placeholder=\"e.g., Test Report\"/><label>Existing state</label><select id=\"stateSel\"><option value=\"\">(none)</option></select><label>Or add new state</label><input id=\"stNew\" placeholder=\"e.g., Verified\"/>`, ()=>{ const actId=(document.getElementById('actSel').value||state.selectedId); const artNew=(document.getElementById('artNew').value||'').trim(); const artId= artNew? addArtifact(artNew).id : document.getElementById('artSel').value; const art=findArtifact(artId); const selected=document.getElementById('stateSel').value; const newS=(document.getElementById('stNew').value||'').trim(); const s=newS || selected || 'Defined'; const act=findActivity(actId); if(!act||!art) return; art.states.add(s); const io={artifactId:art.id,state:s}; if(direction==='in') { act.inputs.push(io); } else { act.outputs.push(io); markAchieved(art.id,s); } const parent=act.parentId?findActivity(act.parentId):null; if(parent) parent.isMaster=true; render(); }); setTimeout(()=>{ const artSel=document.getElementById('artSel'); const stSel=document.getElementById('stateSel'); function refresh(){ const art=findArtifact(artSel.value); stSel.innerHTML='<option value="">(none)</option>' + (art? [...art.states].map(s=>`<option value="${s}">${s}</option>`).join('') : ''); } artSel.addEventListener('change', refresh); refresh(); },0); }
 
   </script>
 </body>

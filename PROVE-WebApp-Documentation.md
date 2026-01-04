@@ -1,9 +1,9 @@
 
 # PROVE-Pro(totype) Web Application — Full Documentation
 
-**Version:** Documentation v1.0 (for `provepro.html`)  
+**Version:** Documentation v1.01 (for `provepro.html`)  
 **Author:** Avi Shaked  
-**Date:** 2025-12-30
+**Date:** 2026-01-04
 
 ---
 
@@ -50,7 +50,7 @@
 ## User Manual
 
 ### Overview
-The PROVE‑Alt web application is a **single‑file HTML/SVG** tool to design and analyze process descriptions via the **PROVE** methodology. You create **Activities** (process boxes) and connect them with **Artifact‑in‑State** flows. Multi‑level scoping is supported (parent/child processes). The app emphasizes:
+The PROVE‑Pro web application is a **single‑file HTML/SVG** tool to design and analyze process descriptions via the **PROVE** methodology. You create **Activities** (process boxes) and connect them with **Artifact‑in‑State** flows. Multi‑level scoping is supported (parent/child processes). The app emphasizes:
 - **Goal‑driven modeling** (outputs first),
 - **Composite states** for artifacts,
 - **Sibling/internal aggregation** of connectors,
