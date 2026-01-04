@@ -217,18 +217,6 @@
   if(achievedCount===0) return '#60a5fa';
   return '#fbbf24';
 }
-function colorForActivity(a){
-  const smEl=document.getElementById('statusMode');
-  const statusOn = smEl ? smEl.checked : true;
-  if(!statusOn) return (a.isMaster ? '#34d399' : '#60a5fa');
-  const outs = Array.isArray(a.outputs) ? a.outputs : [];
-  if(outs.length===0) return '#60a5fa';
-  let total=0, achieved=0;
-  for(const o of outs){ if(!o||!o.artifactId||!o.state) continue; total++; if(isAchieved(o.artifactId, o.state)) achieved++; }
-  if(total>0 && achieved===total) return '#34d399';
-  if(achieved===0) return '#60a5fa';
-  return '#fbbf24';
-}
   function anchorRight(r,slot=0){ return {x:r.x+r.w, y:r.y+HEADER_H+PAD+16*slot}; }
   function anchorLeft(r,slot=0){ return {x:r.x, y:r.y+HEADER_H+PAD+16*slot}; }
   function anchorOnParentEdge(pRect, near){ const left=Math.abs(near.x-pRect.x), right=Math.abs(near.x-(pRect.x+pRect.w)); return (left<right)? {x:pRect.x+2, y:near.y} : {x:pRect.x+pRect.w-2, y:near.y}; }
@@ -252,7 +240,7 @@ function colorForActivity(a){
 
     const t=layout(); const idx=indexNodes(t);
 
-    function drawNode(n){ const a=n.act; const r=idx.get(a.id); const rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); rect.setAttribute('x',r.x); rect.setAttribute('y',r.y); rect.setAttribute('width',r.w); rect.setAttribute('height',r.h); rect.setAttribute('rx',10); rect.setAttribute('fill','#111827'); const stroke=colorForActivity(a); rect.setAttribute('stroke', stroke); rect.setAttribute('stroke-width', a.isMaster?3:2); layer.appendChild(rect); const label=document.createElementNS('http://www.w3.org/2000/svg','text'); label.setAttribute('x', r.x+IO_SPACE+10); label.setAttribute('y', r.y+18); label.setAttribute('fill','#e5e7eb'); label.setAttribute('font-size','12'); label.textContent=a.name; layer.appendChild(label); const hit=document.createElementNS('http://www.w3.org/2000/svg','rect'); hit.setAttribute('x',r.x); hit.setAttribute('y',r.y); hit.setAttribute('width',r.w); hit.setAttribute('height',r.h); hit.setAttribute('fill','transparent'); hit.style.cursor='move'; hit.addEventListener('mousedown',(ev)=> startDrag(ev,n)); hit.addEventListener('click',()=>{ state.selectedId=a.id; render(); }); layer.appendChild(hit); n.children.forEach(drawNode); }
+    function drawNode(n){ const a=n.act; const r=idx.get(a.id); const rect=document.createElementNS('http://www.w3.org/2000/svg','rect'); rect.setAttribute('x',r.x); rect.setAttribute('y',r.y); rect.setAttribute('width',r.w); rect.setAttribute('height',r.h); rect.setAttribute('rx',10); rect.setAttribute('fill','#111827'); rect.setAttribute('stroke', a.isMaster?'#34d399':'#60a5fa'); rect.setAttribute('stroke-width', a.isMaster?3:2); layer.appendChild(rect); const label=document.createElementNS('http://www.w3.org/2000/svg','text'); label.setAttribute('x', r.x+IO_SPACE+10); label.setAttribute('y', r.y+18); label.setAttribute('fill','#e5e7eb'); label.setAttribute('font-size','12'); label.textContent=a.name; layer.appendChild(label); const hit=document.createElementNS('http://www.w3.org/2000/svg','rect'); hit.setAttribute('x',r.x); hit.setAttribute('y',r.y); hit.setAttribute('width',r.w); hit.setAttribute('height',r.h); hit.setAttribute('fill','transparent'); hit.style.cursor='move'; hit.addEventListener('mousedown',(ev)=> startDrag(ev,n)); hit.addEventListener('click',()=>{ state.selectedId=a.id; render(); }); layer.appendChild(hit); n.children.forEach(drawNode); }
     t.roots.forEach(drawNode);
 
     // Build IO index + state maps
@@ -317,12 +305,10 @@ function colorForActivity(a){
       });
     });
 
-    // Draw aggregated sibling connectors with lane separation
-    const laneTotals=new Map(), laneUsed=new Map();
-    agg.forEach((stSet, keyStr)=>{ const [fromId,toId]=keyStr.split('|'); const gk=fromId+'|'+toId; laneTotals.set(gk,(laneTotals.get(gk)||0)+1); });
+    // Draw aggregated sibling connectors
     agg.forEach((stSet, keyStr)=>{
       const [fromId,toId,artId,route]=keyStr.split('|'); const states=[...stSet].sort(); const color=colorForStates(artId, states);
-      const fromRect=idx.get(fromId); const toRect=idx.get(toId); const gk=fromId+'|'+toId; const idxLane=(laneUsed.get(gk)||0); laneUsed.set(gk, idxLane+1); const laneCount=laneTotals.get(gk)||1; const laneDelta=6; const laneOffset=((idxLane - (laneCount-1)/2)*laneDelta);
+      const fromRect=idx.get(fromId); const toRect=idx.get(toId);
       if(route==='viaParent'){
         // viaParent aggregates were split into two segments in pushAgg
         // segment fromId -> toId (here toId may be the parent or the consumer depending on group)
@@ -330,31 +316,31 @@ function colorForActivity(a){
         const to = (hasChildren(toId)? anchorOnParentEdge(toRect, from) : anchorLeft(toRect));
         const key=edgeKey(fromId,toId,artId,states.join(','));
         const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`;
-        from.y+=laneOffset; to.y+=laneOffset; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
+        drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
       } else {
         const from=anchorRight(fromRect); const to=anchorLeft(toRect);
         const key=edgeKey(fromId,toId,artId,states.join(','));
         const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`;
-        from.y+=laneOffset; to.y+=laneOffset; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
+        drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
       }
     });
 
     // Draw aggregated external inputs
     extAgg.forEach((stSet, k)=>{
       const [toId, artId]=k.split('|'); const states=[...stSet].sort(); const rect=idx.get(toId); const color=colorForStates(artId, states);
-      const from={x:rect.x-IO_SPACE,y:rect.y+HEADER_H+PAD-6+off}; const to={x:rect.x,y:rect.y+HEADER_H+PAD-6+off};
+      const from={x:rect.x-IO_SPACE,y:rect.y+HEADER_H+PAD-6}; const to={x:rect.x,y:rect.y+HEADER_H+PAD-6};
       const key=`ext->${toId}:${artId}::${states.join(',')}`;
       const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`;
-      from.y+=laneOffset; to.y+=laneOffset; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
+      drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
     });
 
     // Draw aggregated goal outputs
     goalAgg.forEach((stSet, k)=>{
       const [fromId, artId]=k.split('|'); const states=[...stSet].sort(); const rect=idx.get(fromId); const color=colorForStates(artId, states);
-      const from={x:rect.x+rect.w,y:rect.y+HEADER_H+PAD-6+off}; const to={x:rect.x+rect.w+IO_SPACE,y:rect.y+HEADER_H+PAD-6+off};
+      const from={x:rect.x+rect.w,y:rect.y+HEADER_H+PAD-6}; const to={x:rect.x+rect.w+IO_SPACE,y:rect.y+HEADER_H+PAD-6};
       const key=`${fromId}->ext:${artId}::${states.join(',')}`;
       const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`;
-      from.y+=laneOffset; to.y+=laneOffset; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
+      drawPath(layer, addRoutePoints(key,[from,to]), color, key, label);
     });
 
     // Internal parent↔child arrows (aggregated by artifact & direction)
@@ -367,9 +353,9 @@ state.activities.forEach(child=>{
   child.outputs.forEach(o=>{ const ref = parent.outputs.some(po=> po.artifactId===o.artifactId && po.state===o.state); if(ref){ const k=child.id+'|'+parent.id+'|'+o.artifactId+'|out'; if(!intOutAgg.has(k)) intOutAgg.set(k,new Set()); intOutAgg.get(k).add(o.state); } });
 });
 
-intInAgg.forEach((stSet,k)=>{ const [pId,cId,artId,_]=k.split('|'); const states=[...stSet].sort(); const pRect=idx.get(pId); const cRect=idx.get(cId); const color=colorForStates(artId, states); const from=anchorOnParentEdge(pRect, {x:pRect.x, y:cRect.y+HEADER_H+PAD}); const to=anchorLeft(cRect); const key=edgeKey(pId, cId, artId, states.join(','))+':internal-in'; const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`; from.y+=laneOffset; to.y+=laneOffset; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label); });
+intInAgg.forEach((stSet,k)=>{ const [pId,cId,artId,_]=k.split('|'); const states=[...stSet].sort(); const pRect=idx.get(pId); const cRect=idx.get(cId); const color=colorForStates(artId, states); const from=anchorOnParentEdge(pRect, {x:pRect.x, y:cRect.y+HEADER_H+PAD}); const to=anchorLeft(cRect); const key=edgeKey(pId, cId, artId, states.join(','))+':internal-in'; const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label); });
 
-intOutAgg.forEach((stSet,k)=>{ const [cId,pId,artId,_]=k.split('|'); const states=[...stSet].sort(); const pRect=idx.get(pId); const cRect=idx.get(cId); const color=colorForStates(artId, states); const from=anchorRight(cRect); const to=anchorOnParentEdge(pRect, {x:cRect.x+cRect.w, y:cRect.y+HEADER_H+PAD}); const key=edgeKey(cId, pId, artId, states.join(','))+':internal-out'; const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`; from.y+=laneOffset; to.y+=laneOffset; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label); });
+intOutAgg.forEach((stSet,k)=>{ const [cId,pId,artId,_]=k.split('|'); const states=[...stSet].sort(); const pRect=idx.get(pId); const cRect=idx.get(cId); const color=colorForStates(artId, states); const from=anchorRight(cRect); const to=anchorOnParentEdge(pRect, {x:cRect.x+cRect.w, y:cRect.y+HEADER_H+PAD}); const key=edgeKey(cId, pId, artId, states.join(','))+':internal-out'; const label=`${findArtifact(artId).name} :: [${states.join(', ')}]`; drawPath(layer, addRoutePoints(key,[from,to]), color, key, label); });
 
     // Props panel
     const props=document.getElementById('props'); const a=state.selectedId?findActivity(state.selectedId):null; if(!a){ props.innerHTML='<div class="meta">Select a box to edit</div>'; }
