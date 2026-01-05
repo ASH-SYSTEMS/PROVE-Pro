@@ -1,0 +1,145 @@
+{
+  "activities": [
+    {
+      "id": "act1",
+      "name": "Master Process",
+      "parentId": null,
+      "isMaster": true,
+      "inputs": [
+        {
+          "artifactId": "art2",
+          "state": "signed"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art1",
+          "state": "Released"
+        },
+        {
+          "artifactId": "art1",
+          "state": "verified"
+        }
+      ]
+    },
+    {
+      "id": "act2",
+      "name": "Requirements Engineering",
+      "parentId": "act1",
+      "isMaster": true,
+      "inputs": [],
+      "outputs": [
+        {
+          "artifactId": "art1",
+          "state": "Released"
+        }
+      ]
+    },
+    {
+      "id": "act3",
+      "name": "Verification Planning",
+      "parentId": "act1",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art1",
+          "state": "specified"
+        }
+      ],
+      "outputs": [
+        {
+          "artifactId": "art1",
+          "state": "verificationAssigned"
+        }
+      ]
+    },
+    {
+      "id": "act4",
+      "name": "Testing",
+      "parentId": "act1",
+      "isMaster": false,
+      "inputs": [
+        {
+          "artifactId": "art1",
+          "state": "verificationAssigned"
+        }
+      ],
+      "outputs": []
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "art1",
+      "name": "Requirements",
+      "states": [
+        "specified",
+        "verificationAssigned",
+        "Released",
+        "verified"
+      ]
+    },
+    {
+      "id": "art2",
+      "name": "Contract",
+      "states": [
+        "signed"
+      ]
+    }
+  ],
+  "offsets": {
+    "act1": {
+      "dx": 0,
+      "dy": 0
+    },
+    "act2": {
+      "dx": -33.33333333333333,
+      "dy": -4.938271604938271
+    },
+    "act3": {
+      "dx": -17.28395061728395,
+      "dy": 1.2345679012345678
+    },
+    "act4": {
+      "dx": -18.51851851851852,
+      "dy": 1.2345679012345678
+    }
+  },
+  "achieved": {
+    "art1": [
+      "verificationAssigned",
+      "Released",
+      "verified",
+      "specified"
+    ]
+  },
+  "routes": {},
+  "lcLayouts": {
+    "art1": {
+      "nodes": {
+        "Released": {
+          "x": 625.6000061035156,
+          "y": 289.28749084472656
+        },
+        "verificationAssigned": {
+          "x": 247.60000610351562,
+          "y": 80.28749084472656
+        },
+        "verified": {
+          "x": 659.6000061035156,
+          "y": 176.28749084472656
+        },
+        "specified": {
+          "x": 160.60000610351562,
+          "y": 73.28749084472656
+        }
+      },
+      "start": {
+        "x": 40,
+        "y": 220
+      }
+    }
+  },
+  "lcRoutes": {
+    "art1": {}
+  }
+}
